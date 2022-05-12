@@ -1,0 +1,3 @@
+
+rootProject.name = 'quera'
+include('web', 'orm', 'list', 'utilities')
