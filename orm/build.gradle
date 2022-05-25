@@ -11,6 +11,10 @@ plugins {
     id 'java-library'
 }
 
+group = 'ir.ac.kntu'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
@@ -19,6 +23,12 @@ repositories {
 dependencies {
     // Use JUnit Jupiter for testing.
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
+
+    // https://mvnrepository.com/artifact/io.vavr/vavr
+    implementation group: 'io.vavr', name: 'vavr', version: '0.10.3'
+
+    // https://mvnrepository.com/artifact/javassist/javassist
+    implementation group: 'org.javassist', name: 'javassist', version: '3.27.0-GA'
 
     // This dependency is exported to consumers, that is to say found on their compile classpath.
     api 'org.apache.commons:commons-math3:3.6.1'

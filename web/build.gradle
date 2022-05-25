@@ -21,10 +21,27 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-test'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	developmentOnly 'org.springframework.boot:spring-boot-starter-actuator'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	implementation group: 'c3p0', name: 'c3p0', version: '0.9.1.2'
+	implementation group: 'org.postgresql', name: 'postgresql', version: '42.3.3'
+
+	compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.24'
+	annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.24'
+
+	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+
+	annotationProcessor project(':orm')
+	implementation project(':orm')
+}
+
+tasks.named('compileJava') {
+	inputs.files(tasks.named('processResources'))
 }
 
 tasks.named('test') {

@@ -13,4 +13,8 @@ public class StringUtils {
     public static LinkedList split(String source) {
         return SplitUtils.split(source);
     }
+
+    public boolean isEmpty(String source) {
+        return source == null || source.isEmpty();
+    }
 }
