@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Getter
 @Setter
 @Component
-@ConfigurationProperties(prefix = "spring.datasource.c3p0")
+@ConfigurationProperties(prefix = "spring.datasource")
 public class C3P0DataSourceProperties {
     private String driverClassName;
     private String url;

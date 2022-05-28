@@ -18,6 +18,9 @@ class WebApplicationTests {
     @Autowired
     DataSource dataSource;
 
+    @Autowired
+    PersonRepository personRepository;
+
     @Test
     void contextLoads() throws SQLException {
         Connection connection = dataSource.getConnection();
@@ -26,6 +29,14 @@ class WebApplicationTests {
         ResultSetMapper<Person> mapper = new ResultSetMapper<>(Person.class, "p", resultSet);
         List<Person> result = mapper.getMappedResultList();
         System.out.println(result);
+//        dataSource.getConnection().createStatement().executeQuery($S)
+
+    }
+
+    @Test
+    void test() {
+        Person person = personRepository.findOneById(1);
+        System.out.println(person);
     }
 
 }

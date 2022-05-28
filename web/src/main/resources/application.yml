@@ -6,13 +6,12 @@ management:
 
 spring:
   datasource:
-    c3p0:
-      url: jdbc:postgresql://localhost:5432/test
-      driver-class-name: org.postgresql.Driver
-      username: postgres
-      password: root
-      initial-pool-size: 5
-      min-pool-size: 5
-      max-idle-time: 600
-      max-pool-size: 20
-      max-statements: 50
+    url: jdbc:postgresql://localhost:5432/test
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: root
+    initial-pool-size: 5
+    min-pool-size: 5
+    max-idle-time: 600
+    max-pool-size: 20
+    max-statements: 50
