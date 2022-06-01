@@ -1,6 +1,7 @@
 package ir.ac.kntu.web;
 
 import ir.ac.kntu.orm.mapping.ResultSetMapper;
+import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,8 +22,9 @@ class WebApplicationTests {
     @Autowired
     PersonRepository personRepository;
 
-    @Test
+//    @Test
     void contextLoads() throws SQLException {
+//        Flyway.configure().dataSource(dataSource).load().migrate();
         Connection connection = dataSource.getConnection();
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT p.* FROM person p");
@@ -33,10 +35,10 @@ class WebApplicationTests {
 
     }
 
-    @Test
+//    @Test
     void test() {
-        Person person = personRepository.findOneById(1);
-        System.out.println(person);
+//        Person person = personRepository.findOneById(1);
+//        System.out.println(person);
     }
 
 }

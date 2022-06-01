@@ -15,3 +15,10 @@ spring:
     max-idle-time: 600
     max-pool-size: 20
     max-statements: 50
+  flyway:
+    enabled: true
+    locations:
+      - classpath:db/migration
+#logging:
+#  level:
+#    root: debug

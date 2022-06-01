@@ -20,6 +20,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Repository processor for generating repository classes.
+ * @author Mahdi Lotfi
+ */
 @SupportedAnnotationTypes({
         "ir.ac.kntu.orm.repo.annotations.Entity",
         "ir.ac.kntu.orm.repo.annotations.Join",

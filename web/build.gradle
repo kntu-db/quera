@@ -1,7 +1,6 @@
 plugins {
 	id 'org.springframework.boot' version '2.6.7'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-	id "org.flywaydb.flyway" version "8.5.11"
 	id 'java'
 }
 
@@ -22,6 +21,7 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-test'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
@@ -29,9 +29,9 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-	implementation 'org.flywaydb:flyway-core:8.5.11'
+	implementation 'org.flywaydb:flyway-core'
 	implementation group: 'c3p0', name: 'c3p0', version: '0.9.1.2'
-	implementation group: 'org.postgresql', name: 'postgresql', version: '42.3.3'
+	runtimeOnly 'org.postgresql:postgresql'
 
 	compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.24'
 	annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.24'
@@ -40,6 +40,8 @@ dependencies {
 
 	annotationProcessor project(':orm')
 	implementation project(':orm')
+
+	implementation project(':client')
 }
 
 tasks.named('compileJava') {
