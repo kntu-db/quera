@@ -1,6 +1,13 @@
 package ir.ac.kntu.orm.processor;
 
-import com.squareup.javapoet.*;
+import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
 import ir.ac.kntu.orm.mapping.ResultSetMapper;
 import ir.ac.kntu.orm.repo.annotations.Query;
 import ir.ac.kntu.orm.repo.annotations.Repository;
@@ -11,10 +18,13 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.*;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.sql.DataSource;
-import javax.tools.Diagnostic;
-import java.lang.annotation.Annotation;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -24,6 +34,7 @@ import java.util.stream.Collectors;
 
 /**
  * Repository processor for generating repository classes.
+ *
  * @author Mahdi Lotfi
  */
 @SupportedAnnotationTypes({
@@ -35,7 +46,8 @@ import java.util.stream.Collectors;
 @SupportedSourceVersion(SourceVersion.RELEASE_11)
 public class RepositoryProcessor extends AbstractProcessor {
 
-    private static final String DATA_SOURCE = "dataSource";
+    public static final String IMPLEMENTATION_SUFFIX = "Impl";
+    public static final String DATA_SOURCE_FIELD = "dataSource";
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
@@ -43,53 +55,28 @@ public class RepositoryProcessor extends AbstractProcessor {
         for (Element target : targets) {
             TypeElement element = (TypeElement) target;
 
-            List<MethodSpec> methods = target.getEnclosedElements()
+            List<MethodSpec> methodSpecs = target.getEnclosedElements()
                     .stream()
                     .map(e -> ((ExecutableElement) e))
-                    .map(e -> {
-                        MethodSpec.Builder builder = MethodSpec.methodBuilder(e.getSimpleName().toString())
-                                .addAnnotation(Override.class)
-                                .addModifiers(Modifier.PUBLIC)
-                                .returns(ClassName.get(e.getReturnType()))
-                                .beginControlFlow("try ($T con = dataSource.getConnection())", Connection.class)
-                                .addCode("$T rs = new $T(con, $S)", ResultSet.class, NamedParameterStatement.class, e.getAnnotation(Query.class).value());
-                        for (VariableElement variable : e.getParameters())
-                            builder.addCode(".setObject($S, $L)", variable.getSimpleName().toString(), variable.getSimpleName().toString());
-                        builder.addStatement(".executeQuery()");
-                        if (ClassName.get(e.getReturnType()) instanceof ParameterizedTypeName && ((ParameterizedTypeName)ClassName.get(e.getReturnType())).rawType.equals(ClassName.get(List.class)))
-                            builder.addStatement("return new $T<>($T.class, rs).getMappedResultList()", ResultSetMapper.class, ((ParameterizedTypeName)ClassName.get(e.getReturnType())).typeArguments.get(0));
-                        else
-                            builder.addStatement("return new $T<>($T.class, rs).getMappedUniqueResult()", ResultSetMapper.class, ClassName.get(e.getReturnType()));
-                        return (
-                                builder
-                                        .nextControlFlow("catch ($T e)", SQLException.class)
-                                        .addStatement("throw new $T(e)", RuntimeException.class)
-                                        .endControlFlow()
-                                        .addParameters(e.getParameters().stream().map(ParameterSpec::get).collect(Collectors.toList()))
-                                        .build()
-                        );
-                    }).collect(Collectors.toList());
-
-            MethodSpec constructor = MethodSpec.constructorBuilder()
-                    .addParameter(DataSource.class, "dataSource")
-                    .addStatement("this.dataSource = dataSource")
-                    .build();
-
-            List<? extends AnnotationMirror> annotationMirrors = element.getAnnotationMirrors()
-                    .stream().filter(a -> !a.getAnnotationType().toString().equals(Repository.class.getCanonicalName()))
+                    .map(this::getMethodSpec)
                     .collect(Collectors.toList());
 
-            TypeSpec repository = TypeSpec.classBuilder(target.getSimpleName().toString() + "Impl")
-                    .addModifiers(Modifier.PUBLIC)
+            methodSpecs.add(getConstructor());
+
+            List<AnnotationSpec> annotationSpecs = getAnnotationMirrors(element)
+                    .stream()
+                    .map(AnnotationSpec::get)
+                    .collect(Collectors.toList());
+
+            TypeSpec repository = TypeSpec.classBuilder(target.getSimpleName().toString() + IMPLEMENTATION_SUFFIX)
+                    .addField(DataSource.class, DATA_SOURCE_FIELD, Modifier.PRIVATE, Modifier.FINAL)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addSuperinterface(ClassName.get(element))
-                    .addMethods(methods)
-                    .addMethod(constructor)
-                    .addAnnotations(annotationMirrors.stream().map(AnnotationSpec::get).collect(Collectors.toList()))
-                    .addField(DataSource.class, "dataSource", Modifier.PRIVATE)
+                    .addAnnotations(annotationSpecs)
+                    .addMethods(methodSpecs)
                     .build();
 
-            JavaFile javaFile = JavaFile.builder(target.getEnclosingElement().toString(), repository)
-                    .build();
+            JavaFile javaFile = JavaFile.builder(target.getEnclosingElement().toString(), repository).build();
 
             try {
                 javaFile.writeTo(processingEnv.getFiler());
@@ -100,5 +87,68 @@ public class RepositoryProcessor extends AbstractProcessor {
             }
         }
         return false;
+    }
+
+    /**
+     * Returns method spec for the given method element.
+     *
+     * @param e method element
+     * @return method spec
+     */
+    private MethodSpec getMethodSpec(ExecutableElement e) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(e.getSimpleName().toString());
+
+        TypeName returnTypeName = ClassName.get(e.getReturnType());
+
+        builder
+                .returns(returnTypeName)
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .addParameters(e.getParameters().stream().map(ParameterSpec::get).collect(Collectors.toList()))
+                .beginControlFlow("try ($T con = $L.getConnection())", Connection.class, DATA_SOURCE_FIELD)
+                .addCode("$T rs = new $T(con, $S)", ResultSet.class, NamedParameterStatement.class, e.getAnnotation(Query.class).value());
+
+        for (VariableElement variable : e.getParameters())
+            builder.addCode(".setObject($S, $L)", variable.getSimpleName().toString(), variable.getSimpleName().toString());
+
+        builder.addStatement(".executeQuery()");
+
+        if (returnTypeName instanceof ParameterizedTypeName && ((ParameterizedTypeName) returnTypeName).rawType.equals(ClassName.get(List.class)))
+            builder.addStatement("return new $T<>($T.class, rs).getMappedResultList()", ResultSetMapper.class, ((ParameterizedTypeName) returnTypeName).typeArguments.get(0));
+        else
+            builder.addStatement("return new $T<>($T.class, rs).getMappedUniqueResult()", ResultSetMapper.class, returnTypeName);
+
+        builder
+                .nextControlFlow("catch ($T e)", SQLException.class)
+                .addStatement("throw new $T(e)", RuntimeException.class)
+                .endControlFlow();
+
+        return builder.build();
+    }
+
+    /**
+     * Returns default constructor for repository families.
+     *
+     * @return constructor
+     */
+    private MethodSpec getConstructor() {
+        return MethodSpec.constructorBuilder()
+                .addParameter(DataSource.class, DATA_SOURCE_FIELD)
+                .addStatement("this.$L = $L", DATA_SOURCE_FIELD, DATA_SOURCE_FIELD)
+                .build();
+    }
+
+    /**
+     * Returns Annotation mirrors for element.
+     * Removes Repository annotation because it is processed by this processor.
+     *
+     * @param element element
+     * @return Annotation mirrors for element excluding Repository annotation
+     */
+    private List<? extends AnnotationMirror> getAnnotationMirrors(TypeElement element) {
+        return element.getAnnotationMirrors()
+                .stream()
+                .filter(a -> !a.getAnnotationType().toString().equals(Repository.class.getCanonicalName()))
+                .collect(Collectors.toList());
     }
 }
