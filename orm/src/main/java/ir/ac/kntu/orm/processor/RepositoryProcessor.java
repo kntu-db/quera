@@ -1,13 +1,7 @@
 package ir.ac.kntu.orm.processor;
 
-import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.*;
+import ir.ac.kntu.orm.mapping.RawMapper;
 import ir.ac.kntu.orm.mapping.ResultSetMapper;
 import ir.ac.kntu.orm.repo.annotations.Query;
 import ir.ac.kntu.orm.repo.annotations.Repository;
@@ -113,8 +107,15 @@ public class RepositoryProcessor extends AbstractProcessor {
 
         builder.addStatement(".executeQuery()");
 
-        if (returnTypeName instanceof ParameterizedTypeName && ((ParameterizedTypeName) returnTypeName).rawType.equals(ClassName.get(List.class)))
-            builder.addStatement("return new $T<>($T.class, rs).getMappedResultList()", ResultSetMapper.class, ((ParameterizedTypeName) returnTypeName).typeArguments.get(0));
+        if (returnTypeName instanceof ParameterizedTypeName && ((ParameterizedTypeName) returnTypeName).rawType.equals(ClassName.get(List.class))) {
+            TypeName parameterTypeName = ((ParameterizedTypeName) returnTypeName).typeArguments.get(0);
+            if (parameterTypeName.equals(ArrayTypeName.get(Object[].class)))
+                builder.addStatement("return new $T(rs).getMappedResultList()", RawMapper.class);
+            else
+                builder.addStatement("return new $T<>($T.class, rs).getMappedResultList()", ResultSetMapper.class, parameterTypeName);
+        }
+        else if (returnTypeName.equals(ArrayTypeName.get(Object[].class)))
+            builder.addStatement("return new $T(rs).getMappedUniqueResult()", RawMapper.class);
         else
             builder.addStatement("return new $T<>($T.class, rs).getMappedUniqueResult()", ResultSetMapper.class, returnTypeName);
 

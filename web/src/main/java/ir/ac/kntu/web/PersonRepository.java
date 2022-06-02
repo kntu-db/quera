@@ -15,4 +15,10 @@ public interface PersonRepository {
     @Query("select * from person")
     List<Person> findAll();
 
+    @Query("select p.id, p.name from person p")
+    List<Object[]> findAllWithIdAndName();
+
+    @Query("select max(id) from person")
+    Object[] findMaxId();
+
 }

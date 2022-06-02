@@ -38,6 +38,7 @@ class WebApplicationTests {
     @Test
     void test() {
         Person person = personRepository.findOneById(1);
+        personRepository.findMaxId();
         System.out.println(person);
     }
 
