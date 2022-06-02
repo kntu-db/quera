@@ -35,10 +35,10 @@ class WebApplicationTests {
 
     }
 
-//    @Test
+    @Test
     void test() {
-//        Person person = personRepository.findOneById(1);
-//        System.out.println(person);
+        Person person = personRepository.findOneById(1);
+        System.out.println(person);
     }
 
 }

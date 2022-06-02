@@ -16,6 +16,7 @@ public class ResultSetMapper<E> {
         this.entity = entity;
         this.resultSet = rs;
         this.alias = "";
+        mapper = EntityMapper.getMapper(entity);
     }
 
     public ResultSetMapper(Class<E> entity, String alias, ResultSet rs) {
