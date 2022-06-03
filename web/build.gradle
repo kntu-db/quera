@@ -44,12 +44,7 @@ dependencies {
 	implementation project(':client')
 }
 
-task copyToLib(type: Copy, dependsOn: ['build', 'clean']) {
-	from "${buildDir}/libs"
-	into "${rootProject.buildDir}/libs"
-}
-
-task stage(dependsOn: copyToLib)
+task stage(dependsOn: ['build', 'clean'])
 build.mustRunAfter(clean)
 
 tasks.named('compileJava') {
