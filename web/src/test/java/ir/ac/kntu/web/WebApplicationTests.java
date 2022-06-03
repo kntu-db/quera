@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
-@SpringBootTest
+//@SpringBootTest
 class WebApplicationTests {
 
     @Autowired
@@ -35,7 +35,7 @@ class WebApplicationTests {
 
     }
 
-    @Test
+//    @Test
     void test() {
         Person person = personRepository.findOneById(1);
         personRepository.findMaxId();

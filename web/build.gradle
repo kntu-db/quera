@@ -44,6 +44,9 @@ dependencies {
 	implementation project(':client')
 }
 
+task stage(dependsOn: ['build', 'clean'])
+build.mustRunAfter(clean)
+
 tasks.named('compileJava') {
 	inputs.files(tasks.named('processResources'))
 }
