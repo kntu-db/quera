@@ -16,14 +16,14 @@ public class ResultSetMapper<E> {
         this.entity = entity;
         this.resultSet = rs;
         this.alias = "";
-        mapper = EntityMapper.getMapper(entity);
+//        mapper = EntityMapper.getMapper(entity);
     }
 
     public ResultSetMapper(Class<E> entity, String alias, ResultSet rs) {
         this.entity = entity;
         this.resultSet = rs;
         this.alias = alias;
-        mapper = EntityMapper.getMapper(entity);
+//        mapper = EntityMapper.getMapper(entity);
     }
 
     public List<E> getMappedResultList() throws SQLException {

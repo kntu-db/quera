@@ -14,21 +14,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class EntityMapper<E> {
-
-    private static final Map<Class<?>, EntityMapper<?>> mappers = new HashMap<>();
-
     private final Class<E> clazz;
 
     private final Map<Method, String> setters;
 
-    @SuppressWarnings("unchecked")
-    public static <E> EntityMapper<E> getMapper(Class<E> clazz) {
-        if (!mappers.containsKey(clazz))
-            mappers.put(clazz, new EntityMapper<>(clazz));
-        return (EntityMapper<E>) mappers.get(clazz);
-    }
-
-    private EntityMapper(Class<E> clazz) {
+    public EntityMapper(Class<E> clazz) {
         this.clazz = clazz;
         setters = new HashMap<>(clazz.getDeclaredMethods().length);
         for (Field field : clazz.getDeclaredFields()) {

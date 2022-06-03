@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
-//@SpringBootTest
+@SpringBootTest
 class WebApplicationTests {
 
     @Autowired
@@ -22,7 +22,10 @@ class WebApplicationTests {
     @Autowired
     PersonRepository personRepository;
 
-//    @Test
+    @Autowired
+    BookRepository bookRepository;
+
+    //    @Test
     void contextLoads() throws SQLException {
 //        Flyway.configure().dataSource(dataSource).load().migrate();
         Connection connection = dataSource.getConnection();
@@ -35,11 +38,10 @@ class WebApplicationTests {
 
     }
 
-//    @Test
+    @Test
     void test() {
-        Person person = personRepository.findOneById(1);
-        personRepository.findMaxId();
-        System.out.println(person);
+        List<Book> books = bookRepository.findAll();
+        System.out.println(books);
     }
 
 }

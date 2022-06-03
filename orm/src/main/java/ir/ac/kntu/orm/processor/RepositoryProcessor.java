@@ -3,6 +3,8 @@ package ir.ac.kntu.orm.processor;
 import com.squareup.javapoet.*;
 import ir.ac.kntu.orm.mapping.RawMapper;
 import ir.ac.kntu.orm.mapping.ResultSetMapper;
+import ir.ac.kntu.orm.mapping.meta.EntityManager;
+import ir.ac.kntu.orm.repo.annotations.Join;
 import ir.ac.kntu.orm.repo.annotations.Query;
 import ir.ac.kntu.orm.repo.annotations.Repository;
 import ir.ac.kntu.orm.utils.NamedParameterStatement;
@@ -32,9 +34,6 @@ import java.util.stream.Collectors;
  * @author Mahdi Lotfi
  */
 @SupportedAnnotationTypes({
-        "ir.ac.kntu.orm.repo.annotations.Entity",
-        "ir.ac.kntu.orm.repo.annotations.Join",
-        "ir.ac.kntu.orm.repo.annotations.Query",
         "ir.ac.kntu.orm.repo.annotations.Repository",
 })
 @SupportedSourceVersion(SourceVersion.RELEASE_11)
@@ -42,6 +41,7 @@ public class RepositoryProcessor extends AbstractProcessor {
 
     public static final String IMPLEMENTATION_SUFFIX = "Impl";
     public static final String DATA_SOURCE_FIELD = "dataSource";
+    public static final String ENTITY_MANAGER_FIELD = "entityManager";
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
@@ -64,6 +64,7 @@ public class RepositoryProcessor extends AbstractProcessor {
 
             TypeSpec repository = TypeSpec.classBuilder(target.getSimpleName().toString() + IMPLEMENTATION_SUFFIX)
                     .addField(DataSource.class, DATA_SOURCE_FIELD, Modifier.PRIVATE, Modifier.FINAL)
+                    .addField(EntityManager.class, ENTITY_MANAGER_FIELD, Modifier.PRIVATE, Modifier.FINAL)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addSuperinterface(ClassName.get(element))
                     .addAnnotations(annotationSpecs)
@@ -111,8 +112,11 @@ public class RepositoryProcessor extends AbstractProcessor {
             TypeName parameterTypeName = ((ParameterizedTypeName) returnTypeName).typeArguments.get(0);
             if (parameterTypeName.equals(ArrayTypeName.get(Object[].class)))
                 builder.addStatement("return new $T(rs).getMappedResultList()", RawMapper.class);
-            else
-                builder.addStatement("return new $T<>($T.class, rs).getMappedResultList()", ResultSetMapper.class, parameterTypeName);
+            else {
+//                builder.addStatement("return new $T<>($T.class, rs).getMappedResultList()", ResultSetMapper.class, parameterTypeName);
+                prepareMapping(builder, parameterTypeName, "", e.getAnnotationsByType(Join.class));
+                builder.addStatement(".getResultList(rs)");
+            }
         }
         else if (returnTypeName.equals(ArrayTypeName.get(Object[].class)))
             builder.addStatement("return new $T(rs).getMappedUniqueResult()", RawMapper.class);
@@ -127,6 +131,12 @@ public class RepositoryProcessor extends AbstractProcessor {
         return builder.build();
     }
 
+    private void prepareMapping(MethodSpec.Builder builder, TypeName entity, String alias, Join[] joins) {
+        builder.addCode("return $L.prepareMapping($T.class, $S)", ENTITY_MANAGER_FIELD, entity, alias);
+        for (Join join: joins)
+            builder.addCode(".join($S, $S)", join.alias(), join.path());
+    }
+
     /**
      * Returns default constructor for repository families.
      *
@@ -134,8 +144,9 @@ public class RepositoryProcessor extends AbstractProcessor {
      */
     private MethodSpec getConstructor() {
         return MethodSpec.constructorBuilder()
-                .addParameter(DataSource.class, DATA_SOURCE_FIELD)
-                .addStatement("this.$L = $L", DATA_SOURCE_FIELD, DATA_SOURCE_FIELD)
+                .addParameter(EntityManager.class, ENTITY_MANAGER_FIELD)
+                .addStatement("this.$L = $L", ENTITY_MANAGER_FIELD, ENTITY_MANAGER_FIELD)
+                .addStatement("this.$L = $L.getDataSource()", DATA_SOURCE_FIELD, ENTITY_MANAGER_FIELD)
                 .build();
     }
 

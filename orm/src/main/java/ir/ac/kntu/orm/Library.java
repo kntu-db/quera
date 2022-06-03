@@ -3,7 +3,7 @@
  */
 package ir.ac.kntu.orm;
 
-import ir.ac.kntu.orm.mapping.annotations.ID;
+import ir.ac.kntu.orm.mapping.annotations.Key;
 import ir.ac.kntu.orm.mapping.annotations.Property;
 import ir.ac.kntu.orm.mapping.annotations.Relation;
 import ir.ac.kntu.orm.model.ModelFactory;
@@ -78,7 +78,7 @@ class Persong {
 //}
 
 class Contest {
-    @ID
+    @Key
     @Property
     private Integer id;
     @Property
@@ -104,10 +104,10 @@ class Contest {
 }
 
 class Problem {
-    @ID
+    @Key
     @Relation(type= Relation.Type.ManyToOne, name="origin")
     private Contest contest;
-    @ID
+    @Key
     @Property
     private Integer number;
     @Property

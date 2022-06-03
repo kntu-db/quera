@@ -6,7 +6,6 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Relation {
     public enum Type {
-        OneToOne,
         OneToMany,
         ManyToOne,
         ManyToMany
