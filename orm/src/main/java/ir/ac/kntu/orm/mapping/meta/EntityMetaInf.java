@@ -25,7 +25,7 @@ public class EntityMetaInf<E> {
                 .collect(Collectors.toSet());
         this.columns = fields.stream()
                 .filter(field -> field.getAnnotation(Property.class) != null)
-                .map(f -> f.getAnnotation(Property.class).column().isBlank() ? f.getName() : f.getAnnotation(Property.class).column())
+                .map(Field::getName)
                 .collect(Collectors.toSet());
     }
 

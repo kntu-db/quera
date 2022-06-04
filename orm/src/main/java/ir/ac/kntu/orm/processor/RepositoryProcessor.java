@@ -7,6 +7,7 @@ import ir.ac.kntu.orm.mapping.meta.EntityManager;
 import ir.ac.kntu.orm.repo.annotations.Join;
 import ir.ac.kntu.orm.repo.annotations.Query;
 import ir.ac.kntu.orm.repo.annotations.Repository;
+import ir.ac.kntu.orm.utils.NameConverter;
 import ir.ac.kntu.orm.utils.NamedParameterStatement;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -22,10 +23,15 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -95,18 +101,38 @@ public class RepositoryProcessor extends AbstractProcessor {
 
         TypeName returnTypeName = ClassName.get(e.getReturnType());
 
+        String query = e.getAnnotation(Query.class).value();
+
         builder
                 .returns(returnTypeName)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .addParameters(e.getParameters().stream().map(ParameterSpec::get).collect(Collectors.toList()))
-                .beginControlFlow("try ($T con = $L.getConnection())", Connection.class, DATA_SOURCE_FIELD)
-                .addCode("$T rs = new $T(con, $S)", ResultSet.class, NamedParameterStatement.class, e.getAnnotation(Query.class).value());
+                .beginControlFlow("try ($T con = $L.getConnection())", Connection.class, DATA_SOURCE_FIELD);
 
-        for (VariableElement variable : e.getParameters())
-            builder.addCode(".setObject($S, $L)", variable.getSimpleName().toString(), variable.getSimpleName().toString());
+        Matcher matcher = Pattern.compile(":(([a-zA-Z\\d]+)(\\.([a-zA-z\\d]+))?)").matcher(query);
 
-        builder.addStatement(".executeQuery()");
+        List<String> params = new ArrayList<>();
+
+        while (matcher.find()) {
+            if (matcher.group(4) == null) {
+                query = query.replaceFirst(matcher.group(), "?");
+                params.add(matcher.group(2));
+            } else {
+                query = query.replaceFirst(matcher.group(), "?");
+                params.add(matcher.group(2) + "." + NameConverter.fieldToGetter(matcher.group(4)) + "()");
+            }
+        }
+
+        builder.addStatement("$T ps = con.prepareStatement($S)", PreparedStatement.class, query);
+
+        for (int i = 0; i < params.size(); i++) {
+            builder.addStatement("ps.setObject($L, $L)", i + 1, params.get(i));
+        }
+
+//
+
+        builder.addStatement("$T rs = ps.executeQuery()", ResultSet.class);
 
         if (returnTypeName instanceof ParameterizedTypeName && ((ParameterizedTypeName) returnTypeName).rawType.equals(ClassName.get(List.class))) {
             TypeName parameterTypeName = ((ParameterizedTypeName) returnTypeName).typeArguments.get(0);
@@ -117,12 +143,12 @@ public class RepositoryProcessor extends AbstractProcessor {
                 prepareMapping(builder, parameterTypeName, "", e.getAnnotationsByType(Join.class));
                 builder.addStatement(".getResultList(rs)");
             }
-        }
-        else if (returnTypeName.equals(ArrayTypeName.get(Object[].class)))
+        } else if (returnTypeName.equals(ArrayTypeName.get(Object[].class)))
             builder.addStatement("return new $T(rs).getMappedUniqueResult()", RawMapper.class);
-        else
-            builder.addStatement("return new $T<>($T.class, rs).getMappedUniqueResult()", ResultSetMapper.class, returnTypeName);
-
+        else {
+            prepareMapping(builder, returnTypeName, "", e.getAnnotationsByType(Join.class));
+            builder.addStatement(".getUniqueResult(rs)");
+        }
         builder
                 .nextControlFlow("catch ($T e)", SQLException.class)
                 .addStatement("throw new $T(e)", RuntimeException.class)
@@ -133,7 +159,7 @@ public class RepositoryProcessor extends AbstractProcessor {
 
     private void prepareMapping(MethodSpec.Builder builder, TypeName entity, String alias, Join[] joins) {
         builder.addCode("return $L.prepareMapping($T.class, $S)", ENTITY_MANAGER_FIELD, entity, alias);
-        for (Join join: joins)
+        for (Join join : joins)
             builder.addCode(".join($S, $S)", join.alias(), join.path());
     }
 

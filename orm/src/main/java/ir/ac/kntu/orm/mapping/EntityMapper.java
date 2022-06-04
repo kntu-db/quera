@@ -8,10 +8,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class EntityMapper<E> {
     private final Class<E> clazz;
@@ -23,8 +21,7 @@ public class EntityMapper<E> {
         setters = new HashMap<>(clazz.getDeclaredMethods().length);
         for (Field field : clazz.getDeclaredFields()) {
             if (field.getAnnotation(Property.class) != null) {
-                String preferredName = field.getAnnotation(Property.class).column();
-                String name = preferredName.isBlank() ? field.getName() : preferredName;
+                String name = field.getName();
                 try {
                     Method setter = clazz.getDeclaredMethod(NameConverter.fieldToSetter(name), field.getType());
                     setters.put(setter, name);

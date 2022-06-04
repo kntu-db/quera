@@ -11,6 +11,6 @@ public @interface Relation {
         ManyToMany
     }
     Type type();
-    String name();
+    String name() default "";
     boolean lazy() default true;
 }

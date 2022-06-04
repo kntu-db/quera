@@ -1,6 +1,10 @@
 package ir.ac.kntu.web;
 
 import ir.ac.kntu.orm.mapping.ResultSetMapper;
+import ir.ac.kntu.web.model.City;
+import ir.ac.kntu.web.model.User;
+import ir.ac.kntu.web.repository.CityRepository;
+import ir.ac.kntu.web.repository.UserRepository;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,28 +24,15 @@ class WebApplicationTests {
     DataSource dataSource;
 
     @Autowired
-    PersonRepository personRepository;
+    CityRepository cityRepository;
 
     @Autowired
-    BookRepository bookRepository;
-
-    //    @Test
-    void contextLoads() throws SQLException {
-//        Flyway.configure().dataSource(dataSource).load().migrate();
-        Connection connection = dataSource.getConnection();
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery("SELECT p.* FROM person p");
-        ResultSetMapper<Person> mapper = new ResultSetMapper<>(Person.class, "p", resultSet);
-        List<Person> result = mapper.getMappedResultList();
-        System.out.println(result);
-//        dataSource.getConnection().createStatement().executeQuery($S)
-
-    }
+    UserRepository userRepository;
 
     @Test
     void test() {
-        List<Book> books = bookRepository.findAll();
-        System.out.println(books);
+        User byId = userRepository.findById(1);
+        System.out.println(byId);
     }
 
 }

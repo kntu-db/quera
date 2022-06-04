@@ -16,7 +16,6 @@ public class ResultSetMapper<E> {
         this.entity = entity;
         this.resultSet = rs;
         this.alias = "";
-//        mapper = EntityMapper.getMapper(entity);
     }
 
     public ResultSetMapper(Class<E> entity, String alias, ResultSet rs) {
@@ -35,12 +34,12 @@ public class ResultSetMapper<E> {
         return result;
     }
 
-    public E getMappedUniqueResult() throws SQLException {
-        E result = null;
-        if (resultSet.next())
-            result = mapper.map(alias, resultSet);
-        if (resultSet.next())
-            throw new SQLException("More than one result found");
-        return result;
-    }
+        public E getMappedUniqueResult() throws SQLException {
+            E result = null;
+            if (resultSet.next())
+                result = mapper.map(alias, resultSet);
+            if (resultSet.next())
+                throw new SQLException("More than one result found");
+            return result;
+        }
 }

@@ -19,14 +19,11 @@ public class PreparedMapping<E> {
         this.entityManager = manager;
         this.entity = entity;
         this.alias = alias;
+        this.joins = new ArrayList<>();
     }
 
     public PreparedMapping join(String alias, String path) {
         return this;
-    }
-
-    public E getUniqueResult(ResultSet rs) {
-        return null;
     }
 
     public List<E> getResultList(ResultSet rs) {
@@ -34,15 +31,24 @@ public class PreparedMapping<E> {
             List<E> result = new ArrayList<>(rs.getFetchSize());
             while (rs.next()) {
                 E e = entityManager.getEntityMetaInf(entity).getMapper().map(alias, rs);
-                for (Join<?> join: joins) {
-                    Object joinObj = entityManager.getEntityMetaInf(join.joinClass).getMapper().map(join.alias, rs);
-//                    join.setter.invoke(e, joinObj)
-                }
                 result.add(e);
             }
             return result;
         } catch (SQLException e) {
-            throw new RuntimeException("Could not extract result set", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public E getUniqueResult(ResultSet rs) {
+        try {
+            E result = null;
+            if (rs.next())
+                result = entityManager.getEntityMetaInf(entity).getMapper().map(alias, rs);
+            if (rs.next())
+                throw new SQLException("More than one result found");
+            return result;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
