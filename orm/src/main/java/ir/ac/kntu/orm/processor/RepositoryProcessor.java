@@ -1,14 +1,11 @@
 package ir.ac.kntu.orm.processor;
 
 import com.squareup.javapoet.*;
-import ir.ac.kntu.orm.mapping.RawMapper;
-import ir.ac.kntu.orm.mapping.ResultSetMapper;
 import ir.ac.kntu.orm.mapping.meta.EntityManager;
 import ir.ac.kntu.orm.repo.annotations.Join;
 import ir.ac.kntu.orm.repo.annotations.Query;
 import ir.ac.kntu.orm.repo.annotations.Repository;
 import ir.ac.kntu.orm.utils.NameConverter;
-import ir.ac.kntu.orm.utils.NamedParameterStatement;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
@@ -26,10 +23,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -101,8 +95,6 @@ public class RepositoryProcessor extends AbstractProcessor {
 
         TypeName returnTypeName = ClassName.get(e.getReturnType());
 
-        String query = e.getAnnotation(Query.class).value();
-
         builder
                 .returns(returnTypeName)
                 .addAnnotation(Override.class)
@@ -110,10 +102,55 @@ public class RepositoryProcessor extends AbstractProcessor {
                 .addParameters(e.getParameters().stream().map(ParameterSpec::get).collect(Collectors.toList()))
                 .beginControlFlow("try ($T con = $L.getConnection())", Connection.class, DATA_SOURCE_FIELD);
 
-        Matcher matcher = Pattern.compile(":(([a-zA-Z\\d]+)(\\.([a-zA-z\\d]+))?)").matcher(query);
-
         List<String> params = new ArrayList<>();
 
+        String query = restructureParams(e.getAnnotation(Query.class).value(), params);
+
+        builder.addStatement("$T ps = con.prepareStatement($S)", PreparedStatement.class, query);
+
+        for (int i = 0; i < params.size(); i++)
+            builder.addStatement("ps.setObject($L, $L)", i + 1, params.get(i));
+
+        builder.addStatement("$T rs = ps.executeQuery()", ResultSet.class);
+
+        appendMappingStatements(e, builder, returnTypeName);
+
+        builder
+                .nextControlFlow("catch ($T e)", SQLException.class)
+                .addStatement("throw new $T(e)", RuntimeException.class)
+                .endControlFlow();
+
+        return builder.build();
+    }
+
+    private void appendMappingStatements(ExecutableElement e, MethodSpec.Builder builder, TypeName returnTypeName) {
+        if (returnTypeName instanceof ParameterizedTypeName) {
+            ParameterizedTypeName parameterizedTypeName = (ParameterizedTypeName) returnTypeName;
+            if (parameterizedTypeName.rawType.equals(ClassName.get(List.class))) {
+                if (parameterizedTypeName.typeArguments.get(0).equals(ArrayTypeName.get(Object[].class))) {
+                    builder.addCode("return $L.prepareMapping()", ENTITY_MANAGER_FIELD);
+                    builder.addStatement(".getResultList(rs)");
+                } else {
+                    builder.addCode("return $L.prepareMapping($T.class, $S)", ENTITY_MANAGER_FIELD, parameterizedTypeName.typeArguments.get(0), "");
+                    builder.addStatement(".getResultList(rs)");
+                }
+            } else if (parameterizedTypeName.rawType.equals(ClassName.get(Optional.class))) {
+                if (parameterizedTypeName.typeArguments.get(0).equals(ArrayTypeName.get(Object[].class))) {
+                    builder.addCode("return $T.ofNullable($L.prepareMapping()", Optional.class, ENTITY_MANAGER_FIELD);
+                    builder.addStatement(".getUniqueResult(rs))");
+                } else {
+                    builder.addCode("return $T.ofNullable($L.prepareMapping($T.class, $S)", Optional.class, ENTITY_MANAGER_FIELD, parameterizedTypeName.typeArguments.get(0), "");
+                    builder.addStatement(".getUniqueResult(rs))");
+                }
+            }
+        } else {
+            builder.addCode("return $L.prepareMapping($T.class, $S)", ENTITY_MANAGER_FIELD, returnTypeName, "");
+            builder.addStatement(".getUniqueResult(rs)");
+        }
+    }
+
+    private String restructureParams(String query, List<String> params) {
+        Matcher matcher = Pattern.compile(":(([a-zA-Z\\d]+)(\\.([a-zA-z\\d]+))?)").matcher(query);
         while (matcher.find()) {
             if (matcher.group(4) == null) {
                 query = query.replaceFirst(matcher.group(), "?");
@@ -123,38 +160,7 @@ public class RepositoryProcessor extends AbstractProcessor {
                 params.add(matcher.group(2) + "." + NameConverter.fieldToGetter(matcher.group(4)) + "()");
             }
         }
-
-        builder.addStatement("$T ps = con.prepareStatement($S)", PreparedStatement.class, query);
-
-        for (int i = 0; i < params.size(); i++) {
-            builder.addStatement("ps.setObject($L, $L)", i + 1, params.get(i));
-        }
-
-//
-
-        builder.addStatement("$T rs = ps.executeQuery()", ResultSet.class);
-
-        if (returnTypeName instanceof ParameterizedTypeName && ((ParameterizedTypeName) returnTypeName).rawType.equals(ClassName.get(List.class))) {
-            TypeName parameterTypeName = ((ParameterizedTypeName) returnTypeName).typeArguments.get(0);
-            if (parameterTypeName.equals(ArrayTypeName.get(Object[].class)))
-                builder.addStatement("return new $T(rs).getMappedResultList()", RawMapper.class);
-            else {
-//                builder.addStatement("return new $T<>($T.class, rs).getMappedResultList()", ResultSetMapper.class, parameterTypeName);
-                prepareMapping(builder, parameterTypeName, "", e.getAnnotationsByType(Join.class));
-                builder.addStatement(".getResultList(rs)");
-            }
-        } else if (returnTypeName.equals(ArrayTypeName.get(Object[].class)))
-            builder.addStatement("return new $T(rs).getMappedUniqueResult()", RawMapper.class);
-        else {
-            prepareMapping(builder, returnTypeName, "", e.getAnnotationsByType(Join.class));
-            builder.addStatement(".getUniqueResult(rs)");
-        }
-        builder
-                .nextControlFlow("catch ($T e)", SQLException.class)
-                .addStatement("throw new $T(e)", RuntimeException.class)
-                .endControlFlow();
-
-        return builder.build();
+        return query;
     }
 
     private void prepareMapping(MethodSpec.Builder builder, TypeName entity, String alias, Join[] joins) {

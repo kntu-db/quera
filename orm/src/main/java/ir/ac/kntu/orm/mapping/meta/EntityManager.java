@@ -2,6 +2,7 @@ package ir.ac.kntu.orm.mapping.meta;
 
 import io.vavr.control.Try;
 import ir.ac.kntu.orm.mapping.PreparedMapping;
+import ir.ac.kntu.orm.mapping.RawPreparedMapping;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -48,5 +49,9 @@ public class EntityManager {
 
     public <E> PreparedMapping<E> prepareMapping(Class<E> entityClass, String alias) {
         return new PreparedMapping<>(this, entityClass, alias);
+    }
+
+    public RawPreparedMapping prepareMapping() {
+        return new RawPreparedMapping();
     }
 }

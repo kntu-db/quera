@@ -1,6 +1,5 @@
 package ir.ac.kntu.web;
 
-import ir.ac.kntu.orm.mapping.ResultSetMapper;
 import ir.ac.kntu.web.model.City;
 import ir.ac.kntu.web.model.User;
 import ir.ac.kntu.web.repository.CityRepository;
@@ -31,8 +30,9 @@ class WebApplicationTests {
 
     @Test
     void test() {
-        User byId = userRepository.findById(1);
-        System.out.println(byId);
+//        User byId = userRepository.findById(1);
+//        System.out.println(byId);
+        userRepository.findByMail("arman@gmail.com").ifPresent(System.out::println);
     }
 
 }

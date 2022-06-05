@@ -5,6 +5,7 @@ import ir.ac.kntu.orm.repo.annotations.Repository;
 import ir.ac.kntu.web.model.User;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @org.springframework.stereotype.Repository
@@ -14,6 +15,9 @@ public interface UserRepository {
 
     @Query("select * from \"user\" where id = :id")
     User findById(Integer id);
+
+    @Query("select * from \"user\" where mail = :mail")
+    Optional<User> findByMail(String mail);
 
     @Query("insert into \"user\" (firstname, lastname, mail, password, phone, status, type, isPublic, joinedAt, birthDate)" +
             "values (:user.firstname, :user.lastname, :user.mail, :user.password, :user.phone, :user.status, :user.type, :user.isPublic, :user.joinedAt, :user.birthDate)" +
