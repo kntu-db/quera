@@ -38,8 +38,8 @@ dependencies {
 
 	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
-	annotationProcessor project(':orm')
-	implementation project(':orm')
+	annotationProcessor project(':data')
+	implementation project(':data')
 
 	implementation project(':client')
 }
