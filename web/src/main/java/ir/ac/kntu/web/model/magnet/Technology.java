@@ -1,4 +1,4 @@
-package ir.ac.kntu.web.model;
+package ir.ac.kntu.web.model.magnet;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,8 +9,8 @@ import lombok.ToString;
 @Setter
 @NoArgsConstructor
 @ToString
-public class City {
-    private Integer id;
-    private String name;
-    private String state;
+public class Technology {
+    private String id;
+    private String title;
+    private String category;
 }

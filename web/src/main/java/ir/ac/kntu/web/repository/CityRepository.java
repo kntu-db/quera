@@ -16,4 +16,10 @@ public interface CityRepository {
     @Query("select * from city where id = :id")
     public City findById(Integer id);
 
+    @Query("insert into city (name, state) values (:city.name, :city.state) returning *")
+    public City save(City city);
+
+    @Query("select * from city where name like '%' || :name || '%'")
+    public City searchByName(String name);
+
 }

@@ -12,12 +12,8 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
+import javax.lang.model.element.*;
+import javax.lang.model.type.TypeMirror;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -91,6 +87,8 @@ public class RepositoryProcessor extends AbstractProcessor {
      * @return method spec
      */
     private MethodSpec getMethodSpec(ExecutableElement e) {
+        Map<String, TypeMirror> parameters = e.getParameters().stream().collect(Collectors.toMap(p -> p.getSimpleName().toString(), VariableElement::asType));
+
         MethodSpec.Builder builder = MethodSpec.methodBuilder(e.getSimpleName().toString());
 
         TypeName returnTypeName = ClassName.get(e.getReturnType());
@@ -108,8 +106,9 @@ public class RepositoryProcessor extends AbstractProcessor {
 
         builder.addStatement("$T ps = con.prepareStatement($S)", PreparedStatement.class, query);
 
-        for (int i = 0; i < params.size(); i++)
+        for (int i = 0; i < params.size(); i++) {
             builder.addStatement("ps.setObject($L, $L)", i + 1, params.get(i));
+        }
 
         builder.addStatement("$T rs = ps.executeQuery()", ResultSet.class);
 

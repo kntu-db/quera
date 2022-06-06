@@ -40,7 +40,7 @@ dependencies {
 
 	annotationProcessor project(':data')
 	implementation project(':data')
-
+	implementation project(':utilities')
 	implementation project(':client')
 }
 
