@@ -9,7 +9,6 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
 public class Developer extends User {
     private Institute institute;
     private Boolean isPublic;

@@ -11,7 +11,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @ToString
-public class ProblemSet {
+public abstract class ProblemSet {
     private Integer id;
     private String title;
     private String description;

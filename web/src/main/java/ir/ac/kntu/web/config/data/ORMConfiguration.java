@@ -9,9 +9,9 @@ import javax.sql.DataSource;
 @Configuration
 public class ORMConfiguration {
 
-    @Bean
-    public EntityManager entityManager(DataSource dataSource) {
-        return new EntityManager(dataSource);
-    }
+//    @Bean
+//    public EntityManager entityManager(DataSource dataSource) {
+//        return new EntityManager(dataSource);
+//    }
 
 }
