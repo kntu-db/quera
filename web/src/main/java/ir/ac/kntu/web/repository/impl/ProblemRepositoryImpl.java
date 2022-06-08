@@ -16,7 +16,7 @@ import java.util.Optional;
 @Repository
 public class ProblemRepositoryImpl implements ProblemRepository {
 
-    private DataSource dataSource;
+    private final DataSource dataSource;
 
     public ProblemRepositoryImpl(DataSource dataSource) {
         this.dataSource = dataSource;

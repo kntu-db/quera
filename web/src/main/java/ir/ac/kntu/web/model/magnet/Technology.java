@@ -10,7 +10,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 public class Technology {
-    private String id;
+    private Integer id;
     private String title;
     private String category;
 }

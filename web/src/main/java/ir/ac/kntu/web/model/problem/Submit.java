@@ -17,10 +17,21 @@ public class Submit {
     private Problem problem;
     private User user;
     private Date time;
-    private SubmitStatus status;
+    private Status status;
     private String uri;
-    private SubmitType type;
+    private Type type;
     private String score;
     private Boolean inContest;
     private Boolean isFinal;
+
+    public enum Status {
+        RECEIVED,
+        QUEUED,
+        RUNNING,
+        JUDGED,
+    }
+
+    public enum Type {
+        GIT, UPLOAD
+    }
 }

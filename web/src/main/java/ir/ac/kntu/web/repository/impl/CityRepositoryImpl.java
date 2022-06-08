@@ -15,7 +15,7 @@ import java.util.Optional;
 @Repository
 public class CityRepositoryImpl implements CityRepository {
 
-    private DataSource dataSource;
+    private final DataSource dataSource;
 
     public CityRepositoryImpl(DataSource dataSource) {
         this.dataSource = dataSource;

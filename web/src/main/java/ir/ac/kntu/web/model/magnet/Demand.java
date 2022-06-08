@@ -18,5 +18,12 @@ public class Demand {
     private String description;
     private Date time;
     private String cvURI;
-    private DemandStatus status;
+    private Status status;
+
+    public enum Status {
+        PENDING,
+        ACCEPTED,
+        REJECTED,
+        CANCELLED
+    }
 }

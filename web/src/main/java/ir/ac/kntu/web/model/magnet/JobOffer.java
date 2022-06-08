@@ -15,8 +15,8 @@ import java.util.Date;
 public class JobOffer {
     private Integer id;
     private Date createdAt;
-    private DeveloperLevel level;
-    private JobCooperation cooperation;
+    private Level level;
+    private Cooperation cooperation;
     private Boolean workDistance;
     private Integer salary;
     private String title;
@@ -24,4 +24,16 @@ public class JobOffer {
     private City city;
     private String description;
     private Boolean expired;
+
+    public enum Cooperation {
+        PART_TIME, FULL_TIME
+    }
+
+    public enum Level {
+        INTERN,
+        JUNIOR,
+        MIDDLE,
+        SENIOR,
+        LEAD
+    }
 }

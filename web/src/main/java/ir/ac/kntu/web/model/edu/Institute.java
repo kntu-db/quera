@@ -14,8 +14,14 @@ import lombok.ToString;
 public class Institute {
     private Integer id;
     private String name;
-    private String type;
+    private Type type;
     private City city;
     private String website;
     private User user;
+
+    public enum Type {
+        UNIVERSITY,
+        SCHOOL,
+        INSTITUTE
+    }
 }

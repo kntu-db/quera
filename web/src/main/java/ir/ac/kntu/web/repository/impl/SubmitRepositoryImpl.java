@@ -1,18 +1,19 @@
 package ir.ac.kntu.web.repository.impl;
 
 import ir.ac.kntu.web.model.problem.Submit;
-import ir.ac.kntu.web.model.problem.SubmitStatus;
-import ir.ac.kntu.web.model.problem.SubmitType;
 import ir.ac.kntu.web.repository.SubmitRepository;
+import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class SubmitRepositoryImpl implements SubmitRepository {
 
     private final DataSource dataSource;
@@ -91,7 +92,7 @@ public class SubmitRepositoryImpl implements SubmitRepository {
     private void setParameters(Submit submit, PreparedStatement stmt) throws SQLException {
         stmt.setInt(1, submit.getProblem().getId());
         stmt.setInt(2, submit.getUser().getId());
-        stmt.setTimestamp(3, new java.sql.Timestamp(submit.getTime().getTime()));
+        stmt.setTimestamp(3, new Timestamp(submit.getTime().getTime()));
         stmt.setString(4, submit.getStatus().name().toLowerCase());
         stmt.setString(5, submit.getUri());
         stmt.setString(6, submit.getType().name().toLowerCase());
@@ -103,10 +104,10 @@ public class SubmitRepositoryImpl implements SubmitRepository {
     private Submit map(ResultSet rs) throws SQLException {
         Submit s = new Submit();
         s.setId(rs.getInt("id"));
-        s.setStatus(SubmitStatus.valueOf(rs.getString("status").toUpperCase()));
+        s.setStatus(Submit.Status.valueOf(rs.getString("status").toUpperCase()));
         s.setTime(rs.getTimestamp("time"));
         s.setUri(rs.getString("uri"));
-        s.setType(SubmitType.valueOf(rs.getString("type").toUpperCase()));
+        s.setType(Submit.Type.valueOf(rs.getString("type").toUpperCase()));
         s.setScore(rs.getString("score"));
         s.setInContest(rs.getBoolean("incontest"));
         s.setIsFinal(rs.getBoolean("isfinal"));
