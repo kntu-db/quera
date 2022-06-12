@@ -9,13 +9,16 @@
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.24/13a394eed5c4f9efb2a6d956e2086f1d81e857d9/lombok-1.18.24.jar" />
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-configuration-processor/2.6.7/535971c0f6b28063ddf538e002e2b57db0d7cde9/spring-boot-configuration-processor-2.6.7.jar" />
         </processorPath>
-        <module name="quera.web.main" />
+        <module name="quera.main" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="11">
       <module name="quera.app" target="13" />
       <module name="quera.app.main" target="13" />
       <module name="quera.app.test" target="13" />
+      <module name="quera.buildSrc" target="13" />
+      <module name="quera.buildSrc.main" target="13" />
+      <module name="quera.buildSrc.test" target="13" />
       <module name="quera.list" target="13" />
       <module name="quera.list.main" target="13" />
       <module name="quera.list.test" target="13" />

@@ -1,3 +1,0 @@
-
-rootProject.name = 'quera'
-include('web', 'utilities')
