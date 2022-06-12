@@ -114,7 +114,7 @@ public class UserRepositoryImpl implements UserRepository {
         stmt.setString(3, user.getMail());
         stmt.setString(4, user.getPassword());
         stmt.setString(5, user.getPhone());
-        stmt.setString(6, user.getStatus());
+        stmt.setString(6, user.getStatus().name().toLowerCase());
         stmt.setString(7, user.getClass().getSimpleName().toLowerCase());
         if (user instanceof Developer)
             stmt.setBoolean(8, ((Developer) user).getIsPublic());
@@ -152,7 +152,7 @@ public class UserRepositoryImpl implements UserRepository {
         u.setMail(rs.getString("mail"));
         u.setPassword(rs.getString("password"));
         u.setPhone(rs.getString("phone"));
-        u.setStatus(rs.getString("status"));
+        u.setStatus(User.Status.valueOf(rs.getString("status").toUpperCase()));
         u.setJoinedAt(rs.getDate("joinedAt"));
         u.setBirthDate(rs.getDate("birthDate"));
         return u;
