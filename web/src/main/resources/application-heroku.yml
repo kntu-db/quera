@@ -10,4 +10,4 @@ spring:
     locations:
       - classpath:db/migration
 server:
-  port: 80
+  port: ${PORT}
