@@ -48,6 +48,10 @@ dependencies {
 task stage(dependsOn: ['build', 'clean'])
 build.mustRunAfter(clean)
 
+bootRun {
+	args('--spring.profiles.active=dev')
+}
+
 tasks.named('compileJava') {
 	inputs.files(tasks.named('processResources'))
 }

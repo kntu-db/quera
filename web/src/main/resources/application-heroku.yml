@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    initial-pool-size: 5
+    min-pool-size: 5
+    max-idle-time: 600
+    max-pool-size: 20
+    max-statements: 50
+  flyway:
+    locations:
+      - classpath:db/migration
