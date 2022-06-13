@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface UserRepository extends Repository<User, Integer> {
     Optional<User> findByMailWithAuthorities(String mail);
+
+    boolean emailExists(String email);
 }

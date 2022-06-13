@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<th:block th:replace="base :: head(${problem.getTitle()})" />
+<body class="bg-dark">
+<th:block th:replace="base :: navbar('problems')" />
+<div class="container d-flex flex-column align-items-center">
+    <h3 th:text="${problem.getTitle()}"></h3>
+    <p th:text="${problem.getText()}"></p>
+</div>
+<th:block th:replace="base :: scripts" />
+</body>
+</html>

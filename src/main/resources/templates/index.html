@@ -1,10 +1,28 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<th:block th:replace="base :: head('vets')" />
-<body>
-<th:block th:replace="base :: navbar('home')" />
+<th:block th:replace="base :: head('بانک سوالات')" />
+<body class="bg-dark">
+<th:block th:replace="base :: navbar('problems')" />
 <div class="container">
-    <h1>Welcome to petclinic application</h1>
+    <table class="table text-light">
+        <thead>
+        <tr>
+            <th scope="col">نام سوال</th>
+            <th scope="col">منبع سوال</th>
+            <th scope="col">تعداد حل</th>
+            <th scope="col">برچسب ها</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="problem: ${problems}">
+            <th scope="row"><a th:text="${problem.getTitle()}" th:href="${problem.getId()}"></a></th>
+            <td>-</td>
+            <td>۰</td>
+            <td>جاوا</td>
+        </tr>
+        </tbody>
+    </table>
+
 </div>
 <th:block th:replace="base :: scripts" />
 </body>

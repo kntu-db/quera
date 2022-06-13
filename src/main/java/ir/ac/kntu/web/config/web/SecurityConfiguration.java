@@ -11,17 +11,19 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/login", "/register").permitAll()
+                .antMatchers("/auth/register", "auth/developer").permitAll()
                 .antMatchers("/share/**", "/static/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
                 .loginPage("/auth")
-                .defaultSuccessUrl("/")
+                .loginProcessingUrl("/auth/developer")
                 .permitAll()
+                .defaultSuccessUrl("/")
                 .and()
                 .logout()
-                .logoutSuccessUrl("/")
-                .permitAll();
+                .logoutSuccessUrl("/auth")
+                .permitAll()
+                .and();
     }
 }

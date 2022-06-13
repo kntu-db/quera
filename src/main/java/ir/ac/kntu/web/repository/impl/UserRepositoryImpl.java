@@ -77,6 +77,18 @@ public class UserRepositoryImpl implements UserRepository {
         }
     }
 
+    @Override
+    public boolean emailExists(String email) {
+        try (var con = dataSource.getConnection()) {
+            var stmt = con.prepareStatement("select * from \"user\" where mail = ?");
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private Role mapRole(ResultSet rs) throws SQLException {
         return Role.valueOf(rs.getString("role").toUpperCase());
     }
@@ -132,7 +144,10 @@ public class UserRepositoryImpl implements UserRepository {
         else
             stmt.setNull(8, Types.BOOLEAN);
         stmt.setTimestamp(9, new Timestamp(user.getJoinedAt().getTime()));
-        stmt.setDate(10, new Date(user.getBirthDate().getTime()));
+        if (user.getBirthDate() != null)
+            stmt.setDate(10, new Date(user.getBirthDate().getTime()));
+        else
+            stmt.setNull(10, Types.DATE);
         if (user.getCity() != null)
             stmt.setInt(11, user.getCity().getId());
         else
