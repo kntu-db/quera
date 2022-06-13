@@ -1,9 +1,6 @@
 package ir.ac.kntu.web.repository.impl;
 
-import ir.ac.kntu.web.model.auth.Developer;
-import ir.ac.kntu.web.model.auth.Employer;
-import ir.ac.kntu.web.model.auth.Manager;
-import ir.ac.kntu.web.model.auth.User;
+import ir.ac.kntu.web.model.auth.*;
 import ir.ac.kntu.web.repository.UserRepository;
 import org.springframework.stereotype.Repository;
 
@@ -57,17 +54,31 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Optional<User> findByMail(String mail) {
+    public Optional<User> findByMailWithAuthorities(String mail) {
         try (var con = dataSource.getConnection()) {
-            var stmt = con.prepareStatement("select * from \"user\" where mail = ?");
+            var stmt = con.prepareStatement("select * from \"user\" join user_role on \"user\".id = user_role.\"user\" where mail = ?");
             stmt.setString(1, mail);
             ResultSet rs = stmt.executeQuery();
-            if (rs.next())
-                return Optional.of(map(rs));
+            if (rs.next()) {
+                User user = map(rs);
+                if (user instanceof Manager) {
+                    Manager m = (Manager) user;
+                    do {
+                        List<Role> roles = new ArrayList<>();
+                        roles.add(mapRole(rs));
+                        m.setAuthorities(roles);
+                    } while (rs.next());
+                }
+                return Optional.of(user);
+            }
             return Optional.empty();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private Role mapRole(ResultSet rs) throws SQLException {
+        return Role.valueOf(rs.getString("role").toUpperCase());
     }
 
     @Override
