@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<th:block th:replace="base :: head('ورود')"/>
+<body class="bg-dark">
+<div class="auth-container container d-flex flex-column align-items-center">
+    <h3>به جامعه برنامه نویسان ایران خوش آمدید</h3>
+    <h6>برای حل سوالات و شرکت در مسابقات نیازمند حساب کاربری هستید</h6>
+    <ul class="nav nav-pills mb-3 auth-tabs" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home"
+                    type="button" role="tab" aria-controls="pills-home" aria-selected="true">ورود
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile"
+                    type="button" role="tab" aria-controls="pills-profile" aria-selected="false">عضویت
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact"
+                    type="button" role="tab" aria-controls="pills-contact" aria-selected="false">ورود کارفرما
+            </button>
+        </li>
+    </ul>
+    <div class="tab-content d-flex justify-content-center w-100" id="pills-tabContent">
+        <div class="tab-pane fade show active w-50" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+            <form th:action="@{/auth/developer}" method="post">
+                <div class="form-group">
+                    <label for="loginEmail">آدرس ایمیل</label>
+                    <input type="email" class="form-control" id="loginEmail" name="username"
+                           placeholder="آدرس ایمیل را وارد کنید">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">رمز عبور</label>
+                    <input type="password" class="form-control" id="loginPassword" name="password"
+                           placeholder="رمز عبور">
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="remindMe">
+                    <label class="form-check-label" for="remindMe">مرا به خاطر بسپار</label>
+                </div>
+                <button type="submit" class="btn btn-light">ورود</button>
+            </form>
+        </div>
+        <div class="tab-pane fade w-50" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+            <form th:action="@{auth/register}" method="post">
+                <div class="form-group d-flex">
+                    <div>
+                        <label for="registerName">نام</label>
+                        <input type="text" class="form-control" name="name" id="registerName"
+                               placeholder="نام را وارد کنید">
+                    </div>
+                    <div>
+                        <label for="registerLastName">نام خانوادگی</label>
+                        <input type="text" class="form-control" name="family" id="registerLastName"
+                               placeholder="نام خانوادگی را وارد کنید">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">آدرس ایمیل</label>
+                    <input type="email" class="form-control" name="email" id="registerEmail"
+                           placeholder="آدرس ایمیل را وارد کنید">
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">رمز عبور</label>
+                    <input type="password" class="form-control" name="password" id="registerPassword"
+                           placeholder="رمز عبور">
+                </div>
+                <button type="submit" class="btn btn-light">عضویت</button>
+            </form>
+        </div>
+        <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
+            <form>
+                <div class="form-group">
+                    <label for="employerLoginEmail">آدرس ایمیل</label>
+                    <input type="email" class="form-control" id="employerLoginEmail" name="email"
+                           placeholder="آدرس ایمیل را وارد کنید">
+                </div>
+                <div class="form-group">
+                    <label for="employerLoginPassword">رمز عبور</label>
+                    <input type="password" class="form-control" id="employerLoginPassword" name="password"
+                           placeholder="رمز عبور">
+                </div>
+                <button type="submit" class="btn btn-light">ورود</button>
+            </form>
+        </div>
+    </div>
+</div>
+<th:block th:replace="base :: scripts"/>
+</body>
+</html>

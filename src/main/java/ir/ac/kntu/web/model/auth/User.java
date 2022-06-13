@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Date;
 
@@ -12,15 +13,47 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @ToString
-public abstract class User {
+public abstract class User implements UserDetails {
     private Integer id;
     private String firstname;
     private String lastname;
     private String mail;
     private String password;
     private String phone;
-    private String status;
+    private Status status;
     private City city;
     private Date joinedAt;
     private Date birthDate;
+
+    @Override
+    public boolean isEnabled() {
+        return this.getStatus().equals(Status.ACTIVE);
+    }
+
+    @Override
+    public String getUsername() {
+        return this.getMail();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return this.getStatus().equals(Status.ACTIVE);
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
+
+    public enum Status {
+        ACTIVE,
+        INACTIVE,
+        NOT_VERIFIED
+    }
+
 }

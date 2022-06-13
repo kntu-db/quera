@@ -1,4 +1,7 @@
 spring:
+  web:
+    resources:
+      static-locations: classpath:/public/
   datasource:
     url: jdbc:postgresql://localhost:5432/quera?currentSchema=quera
     driver-class-name: org.postgresql.Driver

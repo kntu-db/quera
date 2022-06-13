@@ -114,4 +114,13 @@ public class ProblemRepositoryImpl implements ProblemRepository {
         p.setTitle(resultSet.getString("title"));
         return p;
     }
+
+    @Override
+    public List<Problem> search(Criteria criteria) {
+        return this.findAll();
+    }
+
+    public class SQLCriteria implements Criteria {
+
+    }
 }

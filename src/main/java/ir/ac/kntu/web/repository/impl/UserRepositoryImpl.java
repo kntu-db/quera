@@ -1,9 +1,6 @@
 package ir.ac.kntu.web.repository.impl;
 
-import ir.ac.kntu.web.model.auth.Developer;
-import ir.ac.kntu.web.model.auth.Employer;
-import ir.ac.kntu.web.model.auth.Manager;
-import ir.ac.kntu.web.model.auth.User;
+import ir.ac.kntu.web.model.auth.*;
 import ir.ac.kntu.web.repository.UserRepository;
 import org.springframework.stereotype.Repository;
 
@@ -57,17 +54,43 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Optional<User> findByMail(String mail) {
+    public Optional<User> findByMailWithAuthorities(String mail) {
         try (var con = dataSource.getConnection()) {
-            var stmt = con.prepareStatement("select * from \"user\" where mail = ?");
+            var stmt = con.prepareStatement("select * from \"user\" join user_role on \"user\".id = user_role.\"user\" where mail = ?");
             stmt.setString(1, mail);
             ResultSet rs = stmt.executeQuery();
-            if (rs.next())
-                return Optional.of(map(rs));
+            if (rs.next()) {
+                User user = map(rs);
+                if (user instanceof Manager) {
+                    Manager m = (Manager) user;
+                    do {
+                        List<Role> roles = new ArrayList<>();
+                        roles.add(mapRole(rs));
+                        m.setAuthorities(roles);
+                    } while (rs.next());
+                }
+                return Optional.of(user);
+            }
             return Optional.empty();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public boolean emailExists(String email) {
+        try (var con = dataSource.getConnection()) {
+            var stmt = con.prepareStatement("select * from \"user\" where mail = ?");
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Role mapRole(ResultSet rs) throws SQLException {
+        return Role.valueOf(rs.getString("role").toUpperCase());
     }
 
     @Override
@@ -114,14 +137,17 @@ public class UserRepositoryImpl implements UserRepository {
         stmt.setString(3, user.getMail());
         stmt.setString(4, user.getPassword());
         stmt.setString(5, user.getPhone());
-        stmt.setString(6, user.getStatus());
+        stmt.setString(6, user.getStatus().name().toLowerCase());
         stmt.setString(7, user.getClass().getSimpleName().toLowerCase());
         if (user instanceof Developer)
             stmt.setBoolean(8, ((Developer) user).getIsPublic());
         else
             stmt.setNull(8, Types.BOOLEAN);
         stmt.setTimestamp(9, new Timestamp(user.getJoinedAt().getTime()));
-        stmt.setDate(10, new Date(user.getBirthDate().getTime()));
+        if (user.getBirthDate() != null)
+            stmt.setDate(10, new Date(user.getBirthDate().getTime()));
+        else
+            stmt.setNull(10, Types.DATE);
         if (user.getCity() != null)
             stmt.setInt(11, user.getCity().getId());
         else
@@ -152,7 +178,7 @@ public class UserRepositoryImpl implements UserRepository {
         u.setMail(rs.getString("mail"));
         u.setPassword(rs.getString("password"));
         u.setPhone(rs.getString("phone"));
-        u.setStatus(rs.getString("status"));
+        u.setStatus(User.Status.valueOf(rs.getString("status").toUpperCase()));
         u.setJoinedAt(rs.getDate("joinedAt"));
         u.setBirthDate(rs.getDate("birthDate"));
         return u;
