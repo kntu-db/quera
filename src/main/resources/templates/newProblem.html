@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<th:block th:replace="base :: head('بانک سوالات')"/>
+<body class="bg-dark">
+<th:block th:replace="base :: navbar('problems')"/>
+<div class="container d-flex justify-content-center">
+    <form class="form m-3 w-75" th:action="@{/create}" method="post" th:object="${problem}">
+        <div class="form-group">
+            <label for="title">نام سوال</label>
+            <input type="text" class="form-control" id="title" name="title" placeholder="نام سوال" th:field="*{title}">
+        </div>
+        <div class="form-group">
+            <label for="text">متن سوال</label>
+            <textarea class="form-control" id="text" name="text" rows="3" th:field="*{text}"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="score">امتیاز</label>
+            <input type="number" class="form-control" id="score" name="score" placeholder="امتیاز" th:field="*{score}">
+        </div>
+        <div class="form-group">
+            <label for="category">دسته بندی</label>
+            <input type="text" class="form-control" id="category" name="category" placeholder="دسته بندی"
+                   th:field="*{category}">
+        </div>
+        <div class="form-group">
+            <label for="tags">برچسب ها</label>
+            <input type="text" class="form-control" id="tags" name="tags" placeholder="برچسب ها" th:field="*{tags}">
+        </div>
+        <button type="submit" class="btn btn-light my-2">ذخیره</button>
+    </form>
+</div>
+<th:block th:replace="base :: scripts"/>
+</body>
+</html>

@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
         Developer d = new Developer();
         d.setFirstname(userDto.getName());
         d.setLastname(userDto.getFamily());
-        d.setPassword(userDto.getPassword());
+        d.setPassword("{noop}" + userDto.getPassword());
         d.setMail(userDto.getEmail());
         d.setJoinedAt(new Date());
         d.setStatus(User.Status.ACTIVE);
@@ -52,7 +52,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        System.out.println(username);
         Optional<User> byMail = userRepository.findByMailWithAuthorities(username);
         if (byMail.isPresent()) {
             return byMail.get();

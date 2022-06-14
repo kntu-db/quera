@@ -3,8 +3,11 @@
 <th:block th:replace="base :: head('بانک سوالات')" />
 <body class="bg-dark">
 <th:block th:replace="base :: navbar('problems')" />
-<div class="container">
-    <table class="table text-light">
+<div class="container d-flex">
+    <div class="d-flex flex-column align-items-center px-2">
+        <a class="btn btn-light btn-nowrap" th:href="@{/create}">افزودن سوال</a>
+    </div>
+    <table class="table text-light mx-3">
         <thead>
         <tr>
             <th scope="col">نام سوال</th>

@@ -56,15 +56,15 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Optional<User> findByMailWithAuthorities(String mail) {
         try (var con = dataSource.getConnection()) {
-            var stmt = con.prepareStatement("select * from \"user\" join user_role on \"user\".id = user_role.\"user\" where mail = ?");
+            var stmt = con.prepareStatement("select * from \"user\" left join user_role on \"user\".id = user_role.\"user\" where mail = ?");
             stmt.setString(1, mail);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 User user = map(rs);
                 if (user instanceof Manager) {
                     Manager m = (Manager) user;
+                    List<Role> roles = new ArrayList<>();
                     do {
-                        List<Role> roles = new ArrayList<>();
                         roles.add(mapRole(rs));
                         m.setAuthorities(roles);
                     } while (rs.next());
@@ -102,6 +102,14 @@ public class UserRepositoryImpl implements UserRepository {
             ResultSet rs = stmt.getGeneratedKeys();
             rs.next();
             user.setId(rs.getInt(1));
+            stmt = con.prepareStatement("insert into user_role (\"user\", role) values (?, ?)");
+            stmt.setInt(1, user.getId());
+            if (user instanceof Manager) {
+                for (Role role : ((Manager) user).getAuthorities()) {
+                    stmt.setString(2, role.name().toLowerCase());
+                    stmt.executeUpdate();
+                }
+            }
             return user;
         } catch (Exception e) {
             throw new RuntimeException(e);

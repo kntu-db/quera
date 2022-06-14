@@ -63,6 +63,14 @@ public class ProblemRepositoryImpl implements ProblemRepository {
             var rs = stmt.getGeneratedKeys();
             rs.next();
             problem.setId(rs.getInt(1));
+            if (problem.getTags() != null) {
+                stmt = con.prepareStatement("insert into problem_tag (problem, tag) values (?, ?)");
+                stmt.setInt(1, problem.getId());
+                for (var tag : problem.getTags()) {
+                    stmt.setString(2, tag);
+                    stmt.executeUpdate();
+                }
+            }
             return problem;
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -94,7 +102,7 @@ public class ProblemRepositoryImpl implements ProblemRepository {
 
     private void setParameters(Problem problem, PreparedStatement statement) throws SQLException {
         statement.setString(1, problem.getCategory());
-        statement.setInt(2, problem.getNumber());
+        statement.setObject(2, problem.getNumber());
         statement.setInt(3, problem.getScore());
         statement.setString(4, problem.getText());
         statement.setString(5, problem.getTitle());
