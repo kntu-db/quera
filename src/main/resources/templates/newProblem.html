@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <th:block th:replace="base :: head('بانک سوالات')"/>
 <body class="bg-dark">
-<th:block th:replace="base :: navbar('problems')"/>
+<th:block th:replace="base :: navbar('problems', ${user})"/>
 <div class="container d-flex justify-content-center">
     <form class="form m-3 w-75" th:action="@{/create}" method="post" th:object="${problem}">
         <div class="form-group">

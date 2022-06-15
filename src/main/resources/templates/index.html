@@ -2,9 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <th:block th:replace="base :: head('بانک سوالات')" />
 <body class="bg-dark">
-<th:block th:replace="base :: navbar('problems')" />
+<th:block th:replace="base :: navbar('problems', ${user})" />
 <div class="container d-flex">
-    <div class="d-flex flex-column align-items-center px-2">
+    <div th:if="${canAddProblem}" class="d-flex flex-column align-items-center px-2">
         <a class="btn btn-light btn-nowrap" th:href="@{/create}">افزودن سوال</a>
     </div>
     <table class="table text-light mx-3">
@@ -18,7 +18,7 @@
         </thead>
         <tbody>
         <tr th:each="problem: ${problems}">
-            <th scope="row"><a th:text="${problem.getTitle()}" th:href="${problem.getId()}"></a></th>
+            <th scope="row"><h5><a th:text="${problem.getTitle()}" th:href="${problem.getId()}"></a></h5></th>
             <td>-</td>
             <td>۰</td>
             <td>جاوا</td>

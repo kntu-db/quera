@@ -22,9 +22,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .defaultSuccessUrl("/")
                 .and()
                 .logout()
+                .logoutUrl("/auth/logout")
                 .logoutSuccessUrl("/auth")
                 .permitAll()
                 .and();
         http.httpBasic();
+        http.csrf().disable();
     }
 }

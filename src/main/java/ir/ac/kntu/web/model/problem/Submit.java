@@ -20,7 +20,7 @@ public class Submit {
     private Status status;
     private String uri;
     private Type type;
-    private String score;
+    private Integer score;
     private Boolean inContest;
     private Boolean isFinal;
 
@@ -28,10 +28,20 @@ public class Submit {
         RECEIVED,
         QUEUED,
         RUNNING,
-        JUDGED,
+        JUDGED;
+
+        @Override
+        public String toString() {
+            return this.name().toLowerCase();
+        }
     }
 
     public enum Type {
-        GIT, UPLOAD
+        GIT, UPLOAD;
+
+        @Override
+        public String toString() {
+            return this.name().toLowerCase();
+        }
     }
 }

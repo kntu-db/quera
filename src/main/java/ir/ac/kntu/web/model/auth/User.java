@@ -45,6 +45,10 @@ public abstract class User implements UserDetails {
         return !this.getStatus().equals(Status.NOT_VERIFIED);
     }
 
+    public String getFullName() {
+        return this.getFirstname() + " " + this.getLastname();
+    }
+
     @Override
     public boolean isCredentialsNonExpired() {
         return !this.getStatus().equals(Status.NOT_VERIFIED);

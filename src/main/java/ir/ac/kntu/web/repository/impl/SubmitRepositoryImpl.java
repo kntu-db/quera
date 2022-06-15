@@ -1,5 +1,7 @@
 package ir.ac.kntu.web.repository.impl;
 
+import ir.ac.kntu.web.model.auth.User;
+import ir.ac.kntu.web.model.problem.Problem;
 import ir.ac.kntu.web.model.problem.Submit;
 import ir.ac.kntu.web.repository.SubmitRepository;
 import org.springframework.stereotype.Repository;
@@ -54,7 +56,7 @@ public class SubmitRepositoryImpl implements SubmitRepository {
     @Override
     public Submit save(Submit submit) {
         try (var con = dataSource.getConnection()) {
-            var stmt = con.prepareStatement("insert into submit (problem, \"user\", time, status, uri, type, score, incontest, isfinal) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", new String[]{"id"});
+            var stmt = con.prepareStatement("insert into submit (problem, \"user\", time, status, uri, type, score, incontest, isfinal) values (?, ?, ?, ?::submitstatus, ?, ?::submittype, ?, ?, ?)", new String[]{"id"});
             setParameters(submit, stmt);
             stmt.executeUpdate();
             ResultSet rs = stmt.getGeneratedKeys();
@@ -69,7 +71,7 @@ public class SubmitRepositoryImpl implements SubmitRepository {
     @Override
     public void update(Submit submit) {
         try (var con = dataSource.getConnection()) {
-            var stmt = con.prepareStatement("update submit set problem = ?, \"user\" = ?, time = ?, status = ?, uri = ?, type = ?, score = ?, incontest = ?, isfinal = ? where id = ?");
+            var stmt = con.prepareStatement("update submit set problem = ?, \"user\" = ?, time = ?, status = ?::submitstatus, uri = ?, type = ?::submittype, score = ?, incontest = ?, isfinal = ? where id = ?");
             setParameters(submit, stmt);
             stmt.setInt(10, submit.getId());
             stmt.executeUpdate();
@@ -96,7 +98,7 @@ public class SubmitRepositoryImpl implements SubmitRepository {
         stmt.setString(4, submit.getStatus().name().toLowerCase());
         stmt.setString(5, submit.getUri());
         stmt.setString(6, submit.getType().name().toLowerCase());
-        stmt.setString(7, submit.getScore());
+        stmt.setInt(7, submit.getScore());
         stmt.setBoolean(8, submit.getInContest());
         stmt.setBoolean(9, submit.getIsFinal());
     }
@@ -108,9 +110,29 @@ public class SubmitRepositoryImpl implements SubmitRepository {
         s.setTime(rs.getTimestamp("time"));
         s.setUri(rs.getString("uri"));
         s.setType(Submit.Type.valueOf(rs.getString("type").toUpperCase()));
-        s.setScore(rs.getString("score"));
+        s.setScore(rs.getInt("score"));
         s.setInContest(rs.getBoolean("incontest"));
         s.setIsFinal(rs.getBoolean("isfinal"));
         return s;
+    }
+
+    @Override
+    public List<Submit> findAllByUserAndProblem(User user, Problem problem) {
+        try (var con = dataSource.getConnection()) {
+            var stmt = con.prepareStatement("select * from submit where problem = ? and \"user\" = ? order by time desc");
+            stmt.setInt(1, problem.getId());
+            stmt.setInt(2, user.getId());
+            ResultSet rs = stmt.executeQuery();
+            List<Submit> submits = new ArrayList<>(rs.getFetchSize());
+            while (rs.next()) {
+                Submit submit = map(rs);
+                submit.setUser(user);
+                submit.setProblem(problem);
+                submits.add(submit);
+            }
+            return submits;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

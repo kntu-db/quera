@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<th:block th:replace="base :: head('بانک سوالات')" />
+<body class="bg-dark">
+<th:block th:replace="base :: navbar('problems', ${user})" />
+<div class="container d-flex">
+    <div class="d-flex flex-column align-items-start w-100">
+        <ul class="nav nav-tabs w-100 mb-3 justify-content-end">
+            <li class="nav-item">
+                <a class="nav-link text-light" aria-current="page" th:href="@{/{id}(id=${problemId})}">صورت سوال</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="">ارسال ها</a>
+            </li>
+        </ul>
+    <table class="table text-light mx-3">
+        <thead>
+        <tr>
+            <th scope="col">نهایی</th>
+            <th scope="col">مسئله</th>
+            <th scope="col">زمان ارسال</th>
+            <th scope="col">نمره داوری</th>
+            <th scope="col">نوع ارسال</th>
+            <th scope="col">وضعیت</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="submit: ${submits}">
+            <td>
+                <input th:if="${submit.getIsFinal()}" checked="checked" type="checkbox" disabled="disabled">
+                <input th:if="${!submit.getIsFinal()}" type="checkbox" disabled="disabled">
+            </td>
+            <th scope="row"><a th:text="${submit.getProblem().getTitle()}" th:href="@{/{id}(id=${submit.getProblem().getId()})}"></a></th>
+            <td th:text="${submit.getTime().toLocaleString()}"></td>
+            <td th:text="${submit.getScore()}"></td>
+            <td th:text="${submit.getType().toString()} == 'upload' ? 'آپلود' : 'گیت'"></td>
+            <td th:text="${submit.getStatus().toString()} == 'judged' ? 'داوری شده' : 'در انتظار داوری'"></td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+<th:block th:replace="base :: scripts" />
+</body>
+</html>
