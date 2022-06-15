@@ -205,3 +205,12 @@ blockquote {
 .auth-container * {
 	margin: .5rem !important;
 }
+
+.nav-logo {
+	height: 2.5rem;
+	width: auto;
+}
+
+.btn-nowrap {
+	white-space: nowrap;
+}

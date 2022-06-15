@@ -37,17 +37,17 @@ public abstract class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return this.getStatus().equals(Status.ACTIVE);
+        return !this.getStatus().equals(Status.INACTIVE);
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return !this.getStatus().equals(Status.NOT_VERIFIED);
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return !this.getStatus().equals(Status.NOT_VERIFIED);
     }
 
     public enum Status {

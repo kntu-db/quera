@@ -1,4 +1,9 @@
 spring:
+  devtools:
+    restart:
+      additional-paths:
+        - classpath:/public/
+        - classpath:/templates/
   web:
     resources:
       static-locations: classpath:/public/

@@ -5,6 +5,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,4 +19,5 @@ public class Problem {
     private String text;
     private Integer score;
     private String category;
+    private List<String> tags;
 }
