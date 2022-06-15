@@ -32,7 +32,7 @@
             </td>
             <th scope="row"><a th:text="${submit.getProblem().getTitle()}" th:href="@{/{id}(id=${submit.getProblem().getId()})}"></a></th>
             <td th:text="${submit.getTime().toLocaleString()}"></td>
-            <td th:text="${submit.getScore()}"></td>
+            <td><span th:class="${submit.isAccepted()} ? 'badge bg-green': 'badge bg-danger'" th:text="${submit.getScore()}"></span></td>
             <td th:text="${submit.getType().toString()} == 'upload' ? 'آپلود' : 'گیت'"></td>
             <td th:text="${submit.getStatus().toString()} == 'judged' ? 'داوری شده' : 'در انتظار داوری'"></td>
         </tr>

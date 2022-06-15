@@ -2,6 +2,7 @@ package ir.ac.kntu.web.controller;
 
 import ir.ac.kntu.web.model.auth.Role;
 import ir.ac.kntu.web.model.auth.User;
+import ir.ac.kntu.web.model.problem.Problem;
 import ir.ac.kntu.web.service.ProblemService;
 import ir.ac.kntu.web.service.dto.ProblemDto;
 import ir.ac.kntu.web.utils.ContextUtil;
@@ -11,7 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class BaseController {
@@ -25,8 +28,6 @@ public class BaseController {
     @GetMapping
     public String index(Map<String, Object> model) {
         User user = ContextUtil.getUser();
-        System.out.println(user);
-        System.out.println(user.getAuthorities());
         model.put("canAddProblem", user.getAuthorities().contains(Role.ADD_PROBLEM));
         model.put("problems", problemService.search(null));
         model.put("user", user);
@@ -71,7 +72,9 @@ public class BaseController {
 
     @GetMapping("/profile")
     public String profile(Map<String, Object> model) {
+        Map<String, List<Problem>> solvedProblems = problemService.solved(ContextUtil.getUser()).stream().collect(Collectors.groupingBy(Problem::getCategory));
         model.put("user", ContextUtil.getUser());
+        model.put("solvedProblems", solvedProblems);
         return "profile";
     }
 

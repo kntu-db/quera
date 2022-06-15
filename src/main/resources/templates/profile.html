@@ -1,8 +1,21 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
+<th:block th:replace="base :: head('حساب کاربری')" />
 <body class="bg-dark">
-<th:block th:replace="base :: navbar('problems', ${user})" />
-<div class="container d-flex flex-column align-items-center">
+<th:block th:replace="base :: navbar('', ${user})" />
+<div class="container d-flex flex-column align-items-start">
+    <h3 th:text="${user.getFullName()}"></h3>
+    <div class="card w-100">
+        <h5 class="card-header bg-black">سوالات حل شده</h5>
+        <div class="card-body bg-dark">
+            <div th:each="entry: ${solvedProblems}" class="w-100 d-flex flex-column">
+                <h6 th:text="${entry.getKey()}"></h6>
+                <div class="d-flex">
+                    <a role="button" th:each="p: ${entry.getValue()}" th:href="@{/{id}(id=${p.getId()})}" th:text="${p.getTitle()}" class="badge bg-light text-dark m-1"></a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <th:block th:replace="base :: scripts" />
 </body>

@@ -20,8 +20,8 @@
         <tr th:each="problem: ${problems}">
             <th scope="row"><h5><a th:text="${problem.getTitle()}" th:href="${problem.getId()}"></a></h5></th>
             <td>-</td>
-            <td>۰</td>
-            <td>جاوا</td>
+            <td class="text-bold" th:text="${problem.getSolveCount()}"></td>
+            <td><span th:each="tag: ${problem.getTags()}" th:text="${tag}" class="badge bg-light text-dark m-1"></span></td>
         </tr>
         </tbody>
     </table>

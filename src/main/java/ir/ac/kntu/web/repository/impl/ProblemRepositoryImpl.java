@@ -1,5 +1,6 @@
 package ir.ac.kntu.web.repository.impl;
 
+import ir.ac.kntu.web.model.auth.User;
 import ir.ac.kntu.web.model.problem.Problem;
 import ir.ac.kntu.web.repository.ProblemRepository;
 import org.springframework.stereotype.Repository;
@@ -9,9 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 public class ProblemRepositoryImpl implements ProblemRepository {
@@ -124,8 +123,43 @@ public class ProblemRepositoryImpl implements ProblemRepository {
     }
 
     @Override
-    public List<Problem> search(Criteria criteria) {
-        return this.findAll();
+    public List<Object[]> search(Criteria criteria) {
+        try (var con = dataSource.getConnection()) {
+            var stmt = con.prepareStatement("select p.*, tag, count(distinct s.\"user\") as solveCount from problem p left join problem_tag pt on p.id = pt.problem left join submit s on p.id = s.problem group by p.id, pt.tag order by p.id desc ");
+            var rs = stmt.executeQuery();
+            List<Object[]> res = new ArrayList<>(rs.getFetchSize());
+            Problem lastProblem = null;
+            while(rs.next()) {
+                if (lastProblem == null || !lastProblem.getId().equals(rs.getInt("id"))) {
+                    lastProblem = map(rs);
+                    lastProblem.setTags(new ArrayList<>());
+                    lastProblem.getTags().add(rs.getString("tag"));
+                    res.add(new Object[]{lastProblem, rs.getInt("solveCount")});
+                } else {
+                    lastProblem.getTags().add(rs.getString("tag"));
+                }
+            }
+            return res;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public List<Problem> solved(User user) {
+        try (var con = dataSource.getConnection()) {
+            var stmt = con.prepareStatement("select * from problem p where exists(select 1 from submit s where s.problem = p.id and s.\"user\" = ? and s.score = p.score)");
+            stmt.setInt(1, user.getId());
+            var rs = stmt.executeQuery();
+            var problems = new ArrayList<Problem>(rs.getFetchSize());
+            while (rs.next()) {
+                Problem problem = map(rs);
+                problems.add(problem);
+            }
+            return problems;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public class SQLCriteria implements Criteria {

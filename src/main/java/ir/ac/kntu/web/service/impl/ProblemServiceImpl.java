@@ -7,6 +7,7 @@ import ir.ac.kntu.web.repository.ProblemRepository;
 import ir.ac.kntu.web.repository.SubmitRepository;
 import ir.ac.kntu.web.service.ProblemService;
 import ir.ac.kntu.web.service.dto.ProblemDto;
+import ir.ac.kntu.web.service.dto.ProblemViewDto;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,8 +28,10 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
-    public List<Problem> search(ProblemRepository.Criteria criteria) {
-        return problemRepository.search(criteria);
+    public List<ProblemViewDto> search(ProblemRepository.Criteria criteria) {
+        return problemRepository.search(criteria).stream()
+                .map(o -> new ProblemViewDto((Problem) o[0], (Integer) o[1]))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -62,6 +65,11 @@ public class ProblemServiceImpl implements ProblemService {
         submit.setUri(String.format("submit/%s", file.getName()));
         submit.setType(Submit.Type.UPLOAD);
         submitRepository.save(submit);
+    }
+
+    @Override
+    public List<Problem> solved(User user) {
+        return this.problemRepository.solved(user);
     }
 
     @Override

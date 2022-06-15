@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.util.Date;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -23,6 +24,10 @@ public class Submit {
     private Integer score;
     private Boolean inContest;
     private Boolean isFinal;
+
+    public boolean isAccepted() {
+        return Objects.equals(this.problem.getScore(), this.score);
+    }
 
     public enum Status {
         RECEIVED,

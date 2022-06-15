@@ -214,3 +214,11 @@ blockquote {
 .btn-nowrap {
 	white-space: nowrap;
 }
+
+.bg-green {
+	background-color: var(--bs-success);
+}
+
+.bg-red {
+	background-color: var(--bs-danger);
+}
