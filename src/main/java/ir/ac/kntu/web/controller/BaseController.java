@@ -3,7 +3,9 @@ package ir.ac.kntu.web.controller;
 import ir.ac.kntu.web.model.auth.Role;
 import ir.ac.kntu.web.model.auth.User;
 import ir.ac.kntu.web.model.problem.Problem;
+import ir.ac.kntu.web.repository.ProblemRepository;
 import ir.ac.kntu.web.service.ProblemService;
+import ir.ac.kntu.web.service.builder.ProblemCriteria;
 import ir.ac.kntu.web.service.dto.ProblemDto;
 import ir.ac.kntu.web.utils.ContextUtil;
 import org.springframework.security.access.annotation.Secured;
@@ -26,11 +28,12 @@ public class BaseController {
     }
 
     @GetMapping
-    public String index(Map<String, Object> model) {
+    public String index(Map<String, Object> model, ProblemCriteria criteria) {
         User user = ContextUtil.getUser();
         model.put("canAddProblem", user.getAuthorities().contains(Role.ADD_PROBLEM));
-        model.put("problems", problemService.search(null));
+        model.put("problems", problemService.search(criteria, ContextUtil.getUser()));
         model.put("user", user);
+        model.put("tags", problemService.findAllTags());
         return "index";
     }
 

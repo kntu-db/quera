@@ -10,6 +10,8 @@ import java.util.List;
 @Getter
 @Setter
 public class ProblemViewDto {
+    private Integer totalTries;
+    private Boolean userSolved;
     private Integer id;
     private String title;
     private String text;
@@ -18,7 +20,7 @@ public class ProblemViewDto {
     private List<String> tags;
     private Integer solveCount;
 
-    public ProblemViewDto(Problem problem, Integer solveCount) {
+    public ProblemViewDto(Problem problem, Integer solveCount, Integer totalTries, Boolean userSolved) {
         this.id = problem.getId();
         this.title = problem.getTitle();
         this.text = problem.getText();
@@ -26,5 +28,7 @@ public class ProblemViewDto {
         this.category = problem.getCategory();
         this.tags = problem.getTags();
         this.solveCount = solveCount;
+        this.totalTries = totalTries;
+        this.userSolved = userSolved;
     }
 }

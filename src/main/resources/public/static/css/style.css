@@ -222,3 +222,27 @@ blockquote {
 .bg-red {
 	background-color: var(--bs-danger);
 }
+
+.tags-container {
+	width: 12vw;
+	height: 25vh;
+}
+
+.h-100vh {
+	height: 100vh;
+}
+
+.tags-container::-webkit-scrollbar-thumb {
+	background-color: var(--bs-light);
+	border-radius: 10px;
+}
+
+.tags-container::-webkit-scrollbar {
+	width: 0.5em;
+}
+
+.solve-status {
+	width: 18px;
+	height: 18px;
+	display: block;
+}

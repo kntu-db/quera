@@ -6,6 +6,7 @@ import ir.ac.kntu.web.model.problem.Submit;
 import ir.ac.kntu.web.repository.ProblemRepository;
 import ir.ac.kntu.web.repository.SubmitRepository;
 import ir.ac.kntu.web.service.ProblemService;
+import ir.ac.kntu.web.service.builder.ProblemCriteria;
 import ir.ac.kntu.web.service.dto.ProblemDto;
 import ir.ac.kntu.web.service.dto.ProblemViewDto;
 import org.springframework.stereotype.Service;
@@ -28,10 +29,15 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
-    public List<ProblemViewDto> search(ProblemRepository.Criteria criteria) {
-        return problemRepository.search(criteria).stream()
-                .map(o -> new ProblemViewDto((Problem) o[0], (Integer) o[1]))
+    public List<ProblemViewDto> search(ProblemCriteria criteria, User user) {
+        return problemRepository.search(criteria, user).stream()
+                .map(o -> new ProblemViewDto((Problem) o[0], (Integer) o[1], (Integer) o[2], (Boolean) o[3]))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> findAllTags() {
+        return problemRepository.findAllTags();
     }
 
     @Override
