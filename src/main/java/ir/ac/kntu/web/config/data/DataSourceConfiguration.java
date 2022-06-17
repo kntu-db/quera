@@ -1,6 +1,8 @@
 package ir.ac.kntu.web.config.data;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import ir.ac.kntu.web.utils.connection.ConnectionProvider;
+import ir.ac.kntu.web.utils.connection.ThreadLocalConnectionProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -11,7 +13,6 @@ import java.beans.PropertyVetoException;
 @Configuration
 public class DataSourceConfiguration {
 
-    @Bean
     public DataSource dataSource(C3P0DataSourceProperties dataSourceProps) throws PropertyVetoException {
         ComboPooledDataSource pooledDataSource = new ComboPooledDataSource();
 
@@ -26,5 +27,10 @@ public class DataSourceConfiguration {
         pooledDataSource.setMaxStatements(dataSourceProps.getMaxStatements());
 
         return pooledDataSource;
+    }
+
+    @Bean
+    public ConnectionProvider connectionProvider(C3P0DataSourceProperties dataSourceProperties) throws PropertyVetoException {
+        return new ThreadLocalConnectionProvider(dataSource(dataSourceProperties));
     }
 }

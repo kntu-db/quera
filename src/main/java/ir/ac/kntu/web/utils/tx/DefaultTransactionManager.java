@@ -1,7 +1,9 @@
 package ir.ac.kntu.web.utils.tx;
 
 import ir.ac.kntu.web.utils.connection.ConnectionProvider;
+import org.springframework.stereotype.Component;
 
+@Component
 public class DefaultTransactionManager implements TransactionManager {
 
     private final ConnectionProvider provider;
@@ -11,17 +13,16 @@ public class DefaultTransactionManager implements TransactionManager {
     }
 
     @Override
-    public void begin() {
+    public void doBegin() {
         try {
             provider.getConnection().setAutoCommit(false);
         } catch (Exception e) {
             throw new RuntimeException("Cannot obtain connection", e);
         }
-
     }
 
     @Override
-    public void commit() {
+    public void doCommit() {
         try {
             provider.getConnection().commit();
             provider.getConnection().setAutoCommit(true);
@@ -31,7 +32,7 @@ public class DefaultTransactionManager implements TransactionManager {
     }
 
     @Override
-    public void rollback() {
+    public void doRollback() {
         try {
             provider.getConnection().rollback();
             provider.getConnection().setAutoCommit(true);

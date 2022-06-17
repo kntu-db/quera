@@ -9,6 +9,7 @@ import ir.ac.kntu.web.service.ProblemService;
 import ir.ac.kntu.web.service.builder.ProblemCriteria;
 import ir.ac.kntu.web.service.dto.ProblemDto;
 import ir.ac.kntu.web.service.dto.ProblemViewDto;
+import ir.ac.kntu.web.utils.tx.Tx;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -57,6 +58,7 @@ public class ProblemServiceImpl implements ProblemService {
         return problemRepository.save(problem).getId();
     }
 
+    @Tx
     @Override
     public void submit(Integer id, MultipartFile file, User user) {
         Problem problem = problemRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Problem not found"));

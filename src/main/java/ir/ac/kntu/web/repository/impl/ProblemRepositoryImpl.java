@@ -7,7 +7,6 @@ import ir.ac.kntu.web.model.problem.Problem;
 import ir.ac.kntu.web.repository.ProblemRepository;
 import ir.ac.kntu.web.service.builder.ProblemCriteria;
 import ir.ac.kntu.web.utils.StringUtil;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
