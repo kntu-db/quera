@@ -7,7 +7,7 @@
     <form th:action="@{/}" method="get" class="d-flex w-100">
         <div th:if="${canAddProblem}" class="d-flex flex-column align-items-center px-2">
             <a class="btn btn-light btn-nowrap" th:href="@{/create}">افزودن سوال</a>
-            <div class="d-flex flex-column align-items-end overflow-auto tags-container my-2 px-1 card bg-dark">
+            <div class="border-light d-flex flex-column align-items-end overflow-auto tags-container my-2 px-1 card bg-dark">
                 <div th:each="tag: ${tags}" class="form-check">
                     <input type="checkbox" class="form-check-input" name="tags" th:id="${tag}" th:value="${tag}"/>
                     <label class="form-check-label text-light" th:for="${tag}" th:text="${tag}"></label>
