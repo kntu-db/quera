@@ -9,7 +9,6 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
 public class Contest extends ProblemSet {
     private String sponsor;
     private Boolean vip;

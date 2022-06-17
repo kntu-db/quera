@@ -10,7 +10,6 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
 public class Practice extends ProblemSet {
     private ClassRoom classRoom;
 }

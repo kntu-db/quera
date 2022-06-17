@@ -1,6 +1,7 @@
 package ir.ac.kntu.web.repository.impl;
 
 import ir.ac.kntu.web.model.edu.Practice;
+import ir.ac.kntu.web.model.mapper.Mapper;
 import ir.ac.kntu.web.model.problem.Contest;
 import ir.ac.kntu.web.model.problem.ProblemSet;
 import ir.ac.kntu.web.repository.ProblemSetRepository;
@@ -19,9 +20,11 @@ import java.util.Optional;
 public class ProblemSetRepositoryImpl implements ProblemSetRepository {
 
     private final DataSource dataSource;
+    private final Mapper<ProblemSet> mapper;
 
-    public ProblemSetRepositoryImpl(DataSource dataSource) {
+    public ProblemSetRepositoryImpl(DataSource dataSource, Mapper<ProblemSet> mapper) {
         this.dataSource = dataSource;
+        this.mapper = mapper;
     }
 
     @Override
@@ -31,7 +34,7 @@ public class ProblemSetRepositoryImpl implements ProblemSetRepository {
             stmt.setInt(1, integer);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return Optional.of(map(rs));
+                return Optional.of(mapper.map(rs));
             }
             return Optional.empty();
         } catch (SQLException e) {
@@ -46,7 +49,7 @@ public class ProblemSetRepositoryImpl implements ProblemSetRepository {
             ResultSet rs = stmt.executeQuery();
             List<ProblemSet> problemSets = new ArrayList<>(rs.getFetchSize());
             while (rs.next()) {
-                problemSets.add(map(rs));
+                problemSets.add(mapper.map(rs));
             }
             return problemSets;
         } catch (SQLException e) {
@@ -90,33 +93,6 @@ public class ProblemSetRepositoryImpl implements ProblemSetRepository {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private ProblemSet map(ResultSet resultSet) throws SQLException {
-        ProblemSet stmt;
-        String type = resultSet.getString("type");
-        switch (type) {
-            case "contest":
-                Contest c = new Contest();
-                stmt = c;
-                c.setSponsor(resultSet.getString("sponsor"));
-                c.setVip(resultSet.getBoolean("vip"));
-                break;
-            case "practice":
-                stmt = new Practice();
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown type: " + type);
-        }
-        stmt.setDescription(resultSet.getString("description"));
-        stmt.setEnd(resultSet.getDate("end"));
-        stmt.setId(resultSet.getInt("id"));
-        stmt.setIsPublic(resultSet.getBoolean("isPublic"));
-        stmt.setStart(resultSet.getDate("start"));
-        stmt.setVisibleScores(resultSet.getBoolean("visibleScores"));
-        stmt.setTitle(resultSet.getString("title"));
-        stmt.setVisible(resultSet.getBoolean("visible"));
-        return stmt;
     }
 
     private void setParameters(ProblemSet problemSet, PreparedStatement stmt) throws SQLException {

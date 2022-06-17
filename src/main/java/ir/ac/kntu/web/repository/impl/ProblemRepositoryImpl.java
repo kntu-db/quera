@@ -1,27 +1,34 @@
 package ir.ac.kntu.web.repository.impl;
 
 import ir.ac.kntu.web.model.auth.User;
+import ir.ac.kntu.web.model.mapper.Mapper;
+import ir.ac.kntu.web.model.mapper.MapperFactory;
 import ir.ac.kntu.web.model.problem.Problem;
 import ir.ac.kntu.web.repository.ProblemRepository;
 import ir.ac.kntu.web.service.builder.ProblemCriteria;
 import ir.ac.kntu.web.utils.StringUtil;
-import lombok.Getter;
-import lombok.Setter;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
 import javax.sql.DataSource;
-import java.sql.*;
-import java.util.*;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
 public class ProblemRepositoryImpl implements ProblemRepository {
 
     private final DataSource dataSource;
+    private final Mapper<Problem> problemMapper;
 
     public ProblemRepositoryImpl(DataSource dataSource) {
         this.dataSource = dataSource;
+        this.problemMapper = MapperFactory.forEntity(Problem.class);
     }
 
     @Override
@@ -31,7 +38,7 @@ public class ProblemRepositoryImpl implements ProblemRepository {
             stmt.setInt(1, id);
             var resultSet = stmt.executeQuery();
             if (resultSet.next()) {
-                Problem problem = map(resultSet);
+                Problem problem = problemMapper.map(resultSet);
                 return Optional.of(problem);
             }
             return Optional.empty();
@@ -47,7 +54,7 @@ public class ProblemRepositoryImpl implements ProblemRepository {
             var rs = stmt.executeQuery();
             var problems = new ArrayList<Problem>(rs.getFetchSize());
             while (rs.next()) {
-                Problem problem = map(rs);
+                Problem problem = problemMapper.map(rs);
                 problems.add(problem);
             }
             return problems;
@@ -59,7 +66,7 @@ public class ProblemRepositoryImpl implements ProblemRepository {
     @Override
     public Problem save(Problem problem) {
         try (var con = dataSource.getConnection()) {
-            var stmt = con.prepareStatement("insert into problem (category, number, score, text, title, problemset) values (?, ?, ?, ?, ?, ?)", new String[]{"id"});
+            var stmt = con.prepareStatement("insert into problem (category, score, text, title, problemset) values (?, ?, ?, ?, ?, ?)", new String[]{"id"});
             setParameters(problem, stmt);
             stmt.executeUpdate();
             var rs = stmt.getGeneratedKeys();
@@ -82,7 +89,7 @@ public class ProblemRepositoryImpl implements ProblemRepository {
     @Override
     public void update(Problem problem) {
         try (var con = dataSource.getConnection()) {
-            var stmt = con.prepareStatement("update problem set category = ?, number = ?, score = ?, text = ?, title = ?, problemset = ? where id = ?");
+            var stmt = con.prepareStatement("update problem set category = ?, score = ?, text = ?, title = ?, problemset = ? where id = ?");
             setParameters(problem, stmt);
             stmt.setInt(7, problem.getId());
             stmt.executeUpdate();
@@ -104,25 +111,13 @@ public class ProblemRepositoryImpl implements ProblemRepository {
 
     private void setParameters(Problem problem, PreparedStatement statement) throws SQLException {
         statement.setString(1, problem.getCategory());
-        statement.setObject(2, problem.getNumber());
-        statement.setInt(3, problem.getScore());
-        statement.setString(4, problem.getText());
-        statement.setString(5, problem.getTitle());
+        statement.setInt(2, problem.getScore());
+        statement.setString(3, problem.getText());
+        statement.setString(4, problem.getTitle());
         if (problem.getProblemSet() != null)
-            statement.setInt(6, problem.getProblemSet().getId());
+            statement.setInt(5, problem.getProblemSet().getId());
         else
-            statement.setNull(6, Types.INTEGER);
-    }
-
-    private Problem map(ResultSet resultSet) throws SQLException {
-        var p = new Problem();
-        p.setId(resultSet.getInt("id"));
-        p.setCategory(resultSet.getString("category"));
-        p.setNumber(resultSet.getInt("number"));
-        p.setScore(resultSet.getInt("score"));
-        p.setText(resultSet.getString("text"));
-        p.setTitle(resultSet.getString("title"));
-        return p;
+            statement.setNull(5, Types.INTEGER);
     }
 
     @Override
@@ -157,7 +152,7 @@ public class ProblemRepositoryImpl implements ProblemRepository {
             Problem lastProblem = null;
             while (rs.next()) {
                 if (lastProblem == null || !lastProblem.getId().equals(rs.getInt("id"))) {
-                    lastProblem = map(rs);
+                    lastProblem = problemMapper.map(rs);
                     lastProblem.setTags(new ArrayList<>());
                     lastProblem.getTags().add(rs.getString("tag"));
                     res.add(new Object[]{lastProblem, rs.getInt("solveCount"), rs.getInt("totalTries"), rs.getBoolean("userSolved")});
@@ -194,7 +189,7 @@ public class ProblemRepositoryImpl implements ProblemRepository {
             var rs = stmt.executeQuery();
             var problems = new ArrayList<Problem>(rs.getFetchSize());
             while (rs.next()) {
-                Problem problem = map(rs);
+                Problem problem = problemMapper.map(rs);
                 problems.add(problem);
             }
             return problems;

@@ -3,7 +3,7 @@ package ir.ac.kntu.web.controller;
 import ir.ac.kntu.web.model.auth.Role;
 import ir.ac.kntu.web.model.auth.User;
 import ir.ac.kntu.web.model.problem.Problem;
-import ir.ac.kntu.web.repository.ProblemRepository;
+import ir.ac.kntu.web.repository.ProblemSetRepository;
 import ir.ac.kntu.web.service.ProblemService;
 import ir.ac.kntu.web.service.builder.ProblemCriteria;
 import ir.ac.kntu.web.service.dto.ProblemDto;
@@ -23,8 +23,11 @@ public class BaseController {
 
     private final ProblemService problemService;
 
-    public BaseController(ProblemService problemService) {
+    private final ProblemSetRepository problemSetRepository;
+
+    public BaseController(ProblemService problemService, ProblemSetRepository problemSetRepository) {
         this.problemService = problemService;
+        this.problemSetRepository = problemSetRepository;
     }
 
     @GetMapping

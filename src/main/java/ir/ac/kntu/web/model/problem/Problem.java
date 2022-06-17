@@ -1,5 +1,6 @@
 package ir.ac.kntu.web.model.problem;
 
+import ir.ac.kntu.web.model.mapper.annotations.Property;
 import lombok.*;
 
 import java.util.List;
@@ -10,12 +11,11 @@ import java.util.List;
 @ToString
 @EqualsAndHashCode
 public class Problem {
-    private Integer id;
-    private Integer number;
-    private ProblemSet problemSet;
-    private String title;
-    private String text;
-    private Integer score;
-    private String category;
+    @Property private Integer id;
+    @Property private ProblemSet problemSet;
+    @Property private String title;
+    @Property private String text;
+    @Property private Integer score;
+    @Property private String category;
     private List<String> tags;
 }
