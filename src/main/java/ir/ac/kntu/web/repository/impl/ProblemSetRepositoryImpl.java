@@ -1,8 +1,10 @@
 package ir.ac.kntu.web.repository.impl;
 
+import ir.ac.kntu.web.model.edu.ClassRoom;
 import ir.ac.kntu.web.model.edu.Practice;
 import ir.ac.kntu.web.model.mapper.Mapper;
 import ir.ac.kntu.web.model.problem.Contest;
+import ir.ac.kntu.web.model.problem.Problem;
 import ir.ac.kntu.web.model.problem.ProblemSet;
 import ir.ac.kntu.web.repository.ProblemSetRepository;
 import org.springframework.stereotype.Repository;
@@ -21,10 +23,12 @@ public class ProblemSetRepositoryImpl implements ProblemSetRepository {
 
     private final DataSource dataSource;
     private final Mapper<ProblemSet> mapper;
+    private final Mapper<Problem> problemMapper;
 
-    public ProblemSetRepositoryImpl(DataSource dataSource, Mapper<ProblemSet> mapper) {
+    public ProblemSetRepositoryImpl(DataSource dataSource, Mapper<ProblemSet> mapper, Mapper<Problem> problemMapper) {
         this.dataSource = dataSource;
         this.mapper = mapper;
+        this.problemMapper = problemMapper;
     }
 
     @Override
@@ -118,6 +122,50 @@ public class ProblemSetRepositoryImpl implements ProblemSetRepository {
             stmt.setNull(8, Types.INTEGER);
             stmt.setString(9, c.getSponsor());
             stmt.setBoolean(10, c.getVip());
+        }
+    }
+
+    @Override
+    public List<Object[]> findByClassRoom(ClassRoom classRoom) {
+        try (var con = dataSource.getConnection()) {
+            var stmt = con.prepareStatement("select ps.*, count(p.id) as problemsCount from problemset ps left join problem p on ps.id = p.problemset where ps.classroom = ? group by ps.id");
+            stmt.setInt(1, classRoom.getId());
+            ResultSet rs = stmt.executeQuery();
+            List<Object[]> problemSets = new ArrayList<>(rs.getFetchSize());
+            while (rs.next()) {
+                problemSets.add(new Object[]{
+                        mapper.map(rs),
+                        rs.getInt("problemsCount")
+                });
+            }
+            return problemSets;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Optional<ProblemSet> findByIdWithProblems(Integer id) {
+        try (var con = dataSource.getConnection()) {
+            var stmt = con.prepareStatement("select ps.*, p.*, p.id as problemId from problemset ps left join problem p on ps.id = p.problemset where ps.id = ? order by p.number");
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                var problemSet = mapper.map(rs);
+                List<Problem> problems = new ArrayList<>(rs.getFetchSize());
+                do {
+                    Problem problem = problemMapper.map(rs);
+                    problem.setId(rs.getInt("problemId"));
+                    problem.setProblemSet(problemSet);
+                    problems.add(problem);
+                } while (rs.next());
+                problemSet.setProblems(problems);
+                return Optional.of(problemSet);
+            } else {
+                return Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }

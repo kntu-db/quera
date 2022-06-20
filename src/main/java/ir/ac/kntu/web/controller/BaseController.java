@@ -8,6 +8,7 @@ import ir.ac.kntu.web.service.ProblemService;
 import ir.ac.kntu.web.service.builder.ProblemCriteria;
 import ir.ac.kntu.web.service.dto.ProblemDto;
 import ir.ac.kntu.web.utils.ContextUtil;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Controller
+@Order(1)
 public class BaseController {
 
     private final ProblemService problemService;

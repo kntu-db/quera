@@ -241,8 +241,25 @@ blockquote {
 	width: 0.5em;
 }
 
+.practices-container::-webkit-scrollbar-thumb {
+	background-color: var(--bs-light);
+	border-radius: 10px;
+}
+
+.practices-container::-webkit-scrollbar {
+	width: 0.5em;
+}
+
 .solve-status {
 	width: 18px;
 	height: 18px;
 	display: block;
+}
+
+.cursor-pointer {
+	cursor: pointer;
+}
+
+a.card-body:hover {
+	color: currentColor;
 }

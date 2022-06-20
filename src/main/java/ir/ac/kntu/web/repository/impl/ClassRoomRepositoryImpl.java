@@ -1,5 +1,6 @@
 package ir.ac.kntu.web.repository.impl;
 
+import ir.ac.kntu.web.model.auth.User;
 import ir.ac.kntu.web.model.edu.ClassRoom;
 import ir.ac.kntu.web.repository.ClassRoomRepository;
 import org.springframework.stereotype.Repository;
@@ -122,5 +123,35 @@ public class ClassRoomRepositoryImpl implements ClassRoomRepository {
         cr.setYear(resultSet.getInt("year"));
         cr.setTitle(resultSet.getString("title"));
         return cr;
+    }
+
+    @Override
+    public List<ClassRoom> findByUser(User user) {
+        try (var con = dataSource.getConnection()) {
+            var stmt = con.prepareStatement("select * from classroom cr where exists(select 1 from classparticipation cp where cp.classroom = cr.id and cp.developer = ?)");
+            stmt.setInt(1, user.getId());
+            var rs = stmt.executeQuery();
+            var classRooms = new ArrayList<ClassRoom>(rs.getFetchSize());
+            while (rs.next()) {
+                ClassRoom classRoom = map(rs);
+                classRooms.add(classRoom);
+            }
+            return classRooms;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean isUserInClass(ClassRoom classRoom, User user) {
+        try (var con = dataSource.getConnection()) {
+            var stmt = con.prepareStatement("select 1 from classparticipation cp where cp.classroom = ? and cp.developer = ?");
+            stmt.setInt(1, classRoom.getId());
+            stmt.setInt(2, user.getId());
+            var rs = stmt.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

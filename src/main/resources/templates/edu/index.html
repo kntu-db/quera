@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<th:block th:replace="base :: head('سامانه آموزشی')"/>
+<body class="bg-dark">
+<th:block th:replace="base :: navbar('education', ${user})"/>
+<div class="container">
+    <div class="row">
+        <div th:each="class: ${classes}" class="col-6 col-md-4 d-flex">
+            <div class="card w-100" style="width: 18rem;">
+                <a th:href="@{/edu/{classId}(classId=${class.getId()})}" class="card-body bg-dark cursor-pointer">
+                    <h5 th:text="${class.getTitle()}" class="card-title"></h5>
+                    <h6 th:text="${class.getProfessor()}" class="card-subtitle mb-2 text-muted"></h6>
+                    <p th:text="${class.getDescription()}" class="card-text"></p>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="base :: scripts"/>
+</body>
+</html>

@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<th:block th:replace="base :: head(${practice.getTitle()})"/>
+<body class="bg-dark">
+<th:block th:replace="base :: navbar('education', ${user})"/>
+<div class="container d-flex">
+</div>
+<th:block th:replace="base :: scripts"/>
+</body>
+</html>

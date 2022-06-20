@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<th:block th:replace="base :: head(${classRoom.getTitle()})"/>
+<body class="bg-dark">
+<th:block th:replace="base :: navbar('education', ${user})"/>
+<div class="container d-flex">
+    <div class="row w-100">
+        <div class="col-md-4 p-2">
+            <h5 th:text="${classRoom.getTitle()}" class="card-title"></h5>
+            <h6 th:text="${classRoom.getProfessor()}" class="card-subtitle mb-2 text-muted"></h6>
+            <p th:text="${classRoom.getDescription()}" class="card-text"></p>
+        </div>
+        <div th:each="practice: ${practices}" class="col-md-8 overflow-auto h-100vh practices-container">
+            <div class="card w-100 my-2">
+                <a th:href="@{/edu/{id}/practice/{practiceId}(id=${classRoom.getId()}, practiceId=${practice.getId()})}" class="cursor-pointer card-body bg-dark">
+                    <h5 th:text="${practice.getTitle()}" class="card-title"></h5>
+                    <h6 th:text="${practice.getRemainingDays()} + ' روز دیگر'" class="card-subtitle mb-2 text-muted"></h6>
+                    <h6 th:text="${practice.getProblemsCount()} + ' تمرین'" class="card-subtitle mb-2 text-muted"></h6>
+                    <p th:text="${practice.getDescription()}" class="card-text"></p>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="base :: scripts"/>
+</body>
+</html>

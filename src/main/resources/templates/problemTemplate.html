@@ -1,0 +1,24 @@
+<!DOCTYPE>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="problemContainer(problem)" class="container d-flex flex-column align-items-center">
+    <ul class="nav nav-tabs w-100 mb-3 justify-content-end">
+        <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="">صورت سوال</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-light" th:href="@{/{id}/submits(id=${problem.getId()})}">ارسال ها</a>
+        </li>
+    </ul>
+    <h3 th:text="${problem.getTitle()}"></h3>
+    <div class="d-flex flex-column align-items-start w-100">
+        <p th:text="${problem.getText()}"></p>
+        <form class="form" enctype="multipart/form-data" th:action="@{/{id}/submit(id=${problem.getId()})}" method="post">
+            <div class="form-group">
+                <label for="file">ارسال پاسخ</label>
+                <input type="file" class="form-control w-75" id="file" name="file">
+            </div>
+            <button type="submit" class="btn btn-light">ارسال</button>
+        </form>
+    </div>
+</div>
